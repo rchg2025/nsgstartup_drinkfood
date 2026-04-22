@@ -41,8 +41,10 @@ export async function GET(req: NextRequest) {
         status: "COMPLETED",
         createdAt: { gte: startDate },
       },
-      include: {
-        items: true,
+      select: {
+        finalAmount: true,
+        cashierId: true,
+        items: { select: { unitCostPrice: true, quantity: true } }
       }
     });
 

@@ -37,9 +37,15 @@ export async function GET(req: NextRequest) {
         ...(cashierId ? { cashierId } : {}),
         ...dateFilter,
       },
-      include: {
-        items: true,
+      select: {
+        id: true,
+        orderNumber: true,
+        createdAt: true,
+        totalAmount: true,
+        discount: true,
+        finalAmount: true,
         cashier: { select: { id: true, name: true } },
+        items: { select: { unitCostPrice: true, quantity: true } }
       },
       orderBy: { createdAt: "desc" },
     });
