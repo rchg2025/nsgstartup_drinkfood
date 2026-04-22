@@ -1,0 +1,225 @@
+.container {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  font-size: 22px;
+}
+
+.logoText {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card {
+  width: 100%;
+  max-width: 500px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  backdrop-filter: blur(20px);
+}
+
+.statusHero {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.statusIcon {
+  font-size: 60px;
+  margin-bottom: 14px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.statusTitle {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.statusDesc { font-size: 14px; color: var(--text-secondary); }
+
+.orderInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.orderNum {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.customerName { font-size: 14px; color: var(--text-secondary); }
+
+/* Stepper */
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+  gap: 0;
+}
+
+.stepWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+.step {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg-glass);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition: all 0.3s;
+  z-index: 1;
+}
+
+.step.stepDone {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
+.step.stepCurrent {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+  box-shadow: 0 0 12px rgba(255,107,53,0.5);
+  animation: pulse 2s infinite;
+}
+
+.stepLabel {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  text-align: center;
+}
+
+.stepLabelActive { color: var(--accent); font-weight: 600; }
+
+.stepLine {
+  position: absolute;
+  top: 18px;
+  left: calc(50% + 18px);
+  right: calc(-50% + 18px);
+  height: 2px;
+  background: var(--border);
+  transition: background 0.3s;
+}
+
+.stepLineDone { background: var(--green); }
+
+/* Items */
+.itemsList { margin-bottom: 20px; }
+.itemsTitle { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.02);
+  margin-bottom: 8px;
+}
+
+.itemLeft { flex: 1; }
+.itemName { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.itemMeta { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.itemTag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(139,92,246,0.1);
+  color: var(--purple-light);
+}
+
+.itemRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.itemQty { font-size: 12px; color: var(--text-muted); }
+.itemPrice { font-size: 14px; font-weight: 700; color: var(--accent); }
+
+/* Total */
+.totalRow {
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.discountRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.totalAmount { color: var(--accent); }
+
+.refreshHint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.errorCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  text-align: center;
+  max-width: 400px;
+}
+
+.errorIcon { font-size: 60px; margin-bottom: 16px; }
+.errorCard h2 { font-size: 20px; margin-bottom: 8px; }
+.errorCard p { color: var(--text-secondary); }

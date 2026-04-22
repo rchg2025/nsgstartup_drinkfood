@@ -1,0 +1,370 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  CASHIER
+  BARISTA
+}
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  TRANSFER
+  CARD
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+}
+
+enum NotificationType {
+  NEW_ORDER
+  ORDER_READY
+  ORDER_CANCELLED
+  ORDER_COMPLETED
+}
+
+enum PointAction {
+  EARN
+  REDEEM
+  REDEEM_CAMPAIGN
+}
+
+enum CampaignRewardType {
+  GIFT
+  DISCOUNT
+}
+
+enum DiscountType {
+  FIXED_AMOUNT
+  PERCENTAGE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  password     String
+  role         Role     @default(CASHIER)
+  avatar       String?
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  lastActive   DateTime @default(now())
+
+  cashierOrders   Order[]        @relation("CashierOrders")
+  baristaOrders   Order[]        @relation("BaristaOrders")
+  notifications   Notification[]
+  withdrawals     CommissionWithdrawal[]
+  
+  conversations   ConversationParticipant[]
+  messagesSent    Message[]
+  activityLogs    ActivityLog[]
+
+  @@map("users")
+}
+
+model Customer {
+  id             String      @id @default(cuid())
+  name           String?
+  phone          String      @unique
+  active         Boolean     @default(true)
+  totalPoints    Int         @default(0)
+  redeemedPoints Int         @default(0)
+  currentPoints  Int         @default(0)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  orders         Order[]
+  pointLogs      PointLog[]
+  rewards        CustomerReward[]
+
+  @@map("customers")
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  icon      String    @default("🍹")
+  sortOrder Int       @default(0)
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  products  Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  image       String?
+  price       Int
+  costPrice   Int           @default(0)
+  categoryId  String
+  available   Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  category    Category      @relation(fields: [categoryId], references: [id])
+  sizes       ProductSize[]
+  orderItems  OrderItem[]
+
+  @@map("products")
+}
+
+model ProductSize {
+  id        String  @id @default(cuid())
+  productId String
+  name      String  // S, M, L
+  priceAdd  Int     @default(0)
+
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_sizes")
+}
+
+model Topping {
+  id          String             @id @default(cuid())
+  name        String
+  price       Int                @default(0)
+  available   Boolean            @default(true)
+  createdAt   DateTime           @default(now())
+
+  orderItems  OrderItemTopping[]
+
+  @@map("toppings")
+}
+
+model Order {
+  id             String        @id @default(cuid())
+  orderNumber    Int
+  status         OrderStatus   @default(PENDING)
+  customerName   String?
+  customerPhone  String?
+  totalAmount    Int
+  discount       Int           @default(0)
+  finalAmount    Int
+  paymentMethod  PaymentMethod @default(CASH)
+  paymentStatus  PaymentStatus @default(PENDING)
+  cashierId      String?
+  baristaId      String?
+  note           String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  completedAt    DateTime?
+  customerId     String?
+  isPointAwarded Boolean       @default(false)
+
+  cashier        User?          @relation("CashierOrders", fields: [cashierId], references: [id])
+  barista        User?          @relation("BaristaOrders", fields: [baristaId], references: [id])
+  customer       Customer?      @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  items          OrderItem[]
+  notifications  Notification[]
+  pointLogs      PointLog[]
+  
+  usedDiscountCodeId String?
+  usedDiscountCode   CustomerReward? @relation(fields: [usedDiscountCodeId], references: [id])
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String             @id @default(cuid())
+  orderId    String
+  productId  String
+  sizeName   String?
+  quantity      Int                @default(1)
+  unitPrice     Int
+  unitCostPrice Int                @default(0)
+  totalPrice    Int
+  note          String?
+
+  order      Order              @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product    Product            @relation(fields: [productId], references: [id])
+  toppings   OrderItemTopping[]
+
+  @@map("order_items")
+}
+
+model OrderItemTopping {
+  id          String  @id @default(cuid())
+  orderItemId String
+  toppingId   String
+  price       Int
+
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  topping     Topping   @relation(fields: [toppingId], references: [id])
+
+  @@map("order_item_toppings")
+}
+
+model Notification {
+  id           String           @id @default(cuid())
+  type         NotificationType
+  title        String
+  message      String
+  orderId      String?
+  targetRole   Role?
+  targetUserId String?
+  read         Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+
+  order        Order?           @relation(fields: [orderId], references: [id])
+  targetUser   User?            @relation(fields: [targetUserId], references: [id])
+
+  @@map("notifications")
+}
+
+model Setting {
+  key   String @id
+  value String
+
+  @@map("settings")
+}
+
+model PointLog {
+  id          String      @id @default(cuid())
+  customerId  String
+  orderId     String?
+  action      PointAction
+  points      Int
+  note        String?
+  createdAt   DateTime    @default(now())
+
+  customer    Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  order       Order?      @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@map("point_logs")
+}
+
+model CommissionWithdrawal {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  note      String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("commission_withdrawals")
+}
+
+model Campaign {
+  id              String   @id @default(cuid())
+  name            String
+  bannerImage     String?
+  rewardType      CampaignRewardType
+  
+  // If GIFT
+  giftName        String?
+  giftImage       String?
+  
+  // If DISCOUNT
+  discountType    DiscountType?
+  discountValue   Int?
+
+  pointsRequired  Int
+  
+  startDate       DateTime
+  endDate         DateTime
+  active          Boolean  @default(true)
+  isDeleted       Boolean  @default(false)
+  
+  maxQuantity     Int?
+  usedQuantity    Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  customerRewards CustomerReward[]
+  
+  @@map("campaigns")
+}
+
+model CustomerReward {
+  id              String   @id @default(cuid())
+  campaignId      String?
+  customerId      String
+  pointsUsed      Int
+  
+  // For DISCOUNTS
+  discountCode    String?  @unique
+  isUsed          Boolean  @default(false)
+  usedAt          DateTime?
+
+  createdAt       DateTime @default(now())
+
+  campaign        Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  customer        Customer @relation(fields: [customerId], references: [id])
+  orders          Order[]
+
+  @@map("customer_rewards")
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  isGroup   Boolean  @default(false)
+  name      String?  // Dành cho Group Chat
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             String   @id @default(cuid())
+  conversationId String
+  userId         String
+  joinedAt       DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  createdAt      DateTime @default(now())
+  isRead         Boolean  @default(false)
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  details   String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activity_logs")
+}
