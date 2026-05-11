@@ -15,6 +15,7 @@ export default function MenuPage() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const ITEMS_PER_PAGE = 20;
 
   const fetchAll = async () => {
@@ -116,6 +117,59 @@ export default function MenuPage() {
   const removeSize = (i: number) => setForm((f: any) => ({ ...f, sizes: f.sizes.filter((_: any, idx: number) => idx !== i) }));
   const updateSize = (i: number, key: string, val: any) =>
     setForm((f: any) => ({ ...f, sizes: f.sizes.map((s: any, idx: number) => idx === i ? { ...s, [key]: val } : s) }));
+
+  const handleFileUpload = async (file: File) => {
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      // 1. Init upload
+      const initRes = await fetch("/api/upload/init", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileName: file.name, mimeType: file.type }),
+      });
+      const initData = await initRes.json();
+      if (!initRes.ok) throw new Error(initData.error || "Failed to init upload");
+
+      // 2. Upload directly to Google Drive
+      const uploadRes = await fetch(initData.uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok) throw new Error("Failed to upload to Google Drive");
+
+      // 3. Make public and get link
+      const completeRes = await fetch("/api/upload/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileId: uploadData.id }),
+      });
+      const completeData = await completeRes.json();
+      if (!completeRes.ok) throw new Error(completeData.error || "Failed to complete upload");
+
+      setForm((f: any) => ({ ...f, image: completeData.url }));
+      showToast("✅ Đã tải ảnh lên thành công!");
+    } catch (err: any) {
+      console.error(err);
+      showToast(`❌ Lỗi tải ảnh: ${err.message}`);
+    }
+    setUploadingImage(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      handleFileUpload(file);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFileUpload(file);
+  };
 
   return (
     <div>
@@ -341,8 +395,52 @@ export default function MenuPage() {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Link ảnh</label>
-                  <input className="form-input" value={form.image || ""} onChange={(e) => setForm({ ...form, image: e.target.value })} placeholder="https://..." />
+                  <label className="form-label">Hình ảnh</label>
+                  <div
+                    style={{
+                      border: "2px dashed var(--border)",
+                      borderRadius: 8,
+                      padding: 24,
+                      textAlign: "center",
+                      backgroundColor: "rgba(255,255,255,0.02)",
+                      position: "relative",
+                      transition: "all 0.2s",
+                      marginBottom: 12
+                    }}
+                    onDragOver={(e) => { e.preventDefault(); e.currentTarget.style.borderColor = "var(--primary)"; }}
+                    onDragLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
+                    onDrop={(e) => { e.currentTarget.style.borderColor = "var(--border)"; handleDrop(e); }}
+                  >
+                    {uploadingImage ? (
+                      <div style={{ color: "var(--primary)", fontWeight: 600 }}>⏳ Đang tải lên Google Drive...</div>
+                    ) : form.image ? (
+                      <div>
+                        <img src={form.image} alt="Preview" style={{ maxHeight: 120, borderRadius: 8, marginBottom: 12 }} />
+                        <div>
+                          <button type="button" className="btn btn-secondary btn-sm" onClick={() => setForm({...form, image: ""})}>Xóa ảnh</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div style={{ fontSize: 32, marginBottom: 8 }}>☁️</div>
+                        <div style={{ color: "var(--text-secondary)", marginBottom: 12 }}>Kéo thả ảnh vào đây hoặc click để chọn</div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          style={{
+                            position: "absolute",
+                            top: 0, left: 0, width: "100%", height: "100%",
+                            opacity: 0, cursor: "pointer"
+                          }}
+                        />
+                      </>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <span style={{ color: "var(--text-secondary)", fontSize: 13, whiteSpace: "nowrap" }}>Hoặc dán Link:</span>
+                    <input className="form-input" value={form.image || ""} onChange={(e) => setForm({ ...form, image: e.target.value })} placeholder="https://..." />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Mô tả</label>

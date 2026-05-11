@@ -7,6 +7,9 @@ export default function SettingsPage() {
   const [bankAccount, setBankAccount] = useState("");
   const [bankAccountName, setBankAccountName] = useState("");
   const [commissionRate, setCommissionRate] = useState("50");
+  const [gdriveClientEmail, setGdriveClientEmail] = useState("");
+  const [gdrivePrivateKey, setGdrivePrivateKey] = useState("");
+  const [gdriveFolderId, setGdriveFolderId] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -19,6 +22,9 @@ export default function SettingsPage() {
         if (data.bank_account) setBankAccount(data.bank_account);
         if (data.bank_account_name) setBankAccountName(data.bank_account_name);
         if (data.commission_rate) setCommissionRate(data.commission_rate);
+        if (data.gdrive_client_email) setGdriveClientEmail(data.gdrive_client_email);
+        if (data.gdrive_private_key) setGdrivePrivateKey(data.gdrive_private_key);
+        if (data.gdrive_folder_id) setGdriveFolderId(data.gdrive_folder_id);
       } catch (e) {
         console.error(e);
       }
@@ -39,6 +45,9 @@ export default function SettingsPage() {
           bank_account: bankAccount,
           bank_account_name: bankAccountName.toUpperCase(),
           commission_rate: commissionRate,
+          gdrive_client_email: gdriveClientEmail,
+          gdrive_private_key: gdrivePrivateKey,
+          gdrive_folder_id: gdriveFolderId,
         }),
       });
       if (res.ok) {
@@ -126,6 +135,43 @@ export default function SettingsPage() {
             <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>
               Phần trăm chia sẻ hoa hồng cho thu ngân từ khoản lợi nhuận (Ví dụ: 40%). Mặc định hệ thống là 50%.
             </p>
+          </div>
+
+          <h2 style={{ marginTop: 24, marginBottom: 16, fontSize: 18, borderBottom: "1px solid var(--border)", paddingBottom: 12 }}>
+            Thiết lập lưu trữ (Google Team Drive)
+          </h2>
+          <div className="form-group">
+            <label className="form-label">Service Account Email</label>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="Ví dụ: my-service@my-project.iam.gserviceaccount.com"
+              value={gdriveClientEmail}
+              onChange={(e) => setGdriveClientEmail(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Private Key</label>
+            <textarea
+              className="form-input"
+              rows={4}
+              placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----&#10;"
+              value={gdrivePrivateKey}
+              onChange={(e) => setGdrivePrivateKey(e.target.value)}
+            />
+            <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>
+              Lưu ý: Bạn có thể nhập Private Key dưới dạng chuỗi có chứa \n hoặc trực tiếp copy paste.
+            </p>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Folder ID</label>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="Nhập ID thư mục Google Team Drive"
+              value={gdriveFolderId}
+              onChange={(e) => setGdriveFolderId(e.target.value)}
+            />
           </div>
 
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 24 }}>
