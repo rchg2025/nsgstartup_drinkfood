@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${token.token}`,
           "Content-Type": "application/json",
           "X-Upload-Content-Type": mimeType,
+          Origin: req.headers.get("origin") || "https://nsgpos-phi.vercel.app",
         },
         body: JSON.stringify(metadata),
       }
