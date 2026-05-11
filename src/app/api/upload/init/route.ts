@@ -34,12 +34,11 @@ export async function POST(req: NextRequest) {
       privateKey = privateKey.replace(/\\n/g, "\n");
     }
 
-    const authClient = new google.auth.JWT(
-      config.gdrive_client_email,
-      undefined,
-      privateKey,
-      ["https://www.googleapis.com/auth/drive.file"]
-    );
+    const authClient = new google.auth.JWT({
+      email: config.gdrive_client_email,
+      key: privateKey,
+      scopes: ["https://www.googleapis.com/auth/drive.file"],
+    });
 
     const token = await authClient.getAccessToken();
 
