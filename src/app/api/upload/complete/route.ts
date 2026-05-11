@@ -52,7 +52,8 @@ export async function POST(req: NextRequest) {
     });
 
     // We can return a thumbnail or uc?export=view URL
-    const url = `https://drive.google.com/uc?export=view&id=${fileId}`;
+    // Use thumbnail endpoint for better compatibility with <img> tags and optimized size
+    const url = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
     return NextResponse.json({ url });
   } catch (error) {
     console.error("UPLOAD COMPLETE ERROR:", error);

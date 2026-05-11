@@ -18,6 +18,14 @@ export default function MenuPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const ITEMS_PER_PAGE = 20;
 
+  const getOptimizedImage = (url: string) => {
+    if (!url) return url;
+    if (url.includes("drive.google.com/uc?export=view&id=")) {
+      return url.replace("uc?export=view&id=", "thumbnail?id=") + "&sz=w1000";
+    }
+    return url;
+  };
+
   const fetchAll = async () => {
     setLoading(true);
     const [catRes, prodRes, topRes] = await Promise.all([
@@ -204,7 +212,7 @@ export default function MenuPage() {
             {products.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((product) => (
               <div key={product.id} className={`${styles.productCard} ${!product.available ? styles.unavailable : ""}`}>
               <div className={styles.productImage}>
-                {product.image ? <img src={product.image} alt={product.name} /> : <span>🧋</span>}
+                {product.image ? <img src={getOptimizedImage(product.image)} alt={product.name} /> : <span>🧋</span>}
               </div>
               <div className={styles.productBody}>
                 <div className={styles.productHeader}>
@@ -415,7 +423,7 @@ export default function MenuPage() {
                       <div style={{ color: "var(--primary)", fontWeight: 600 }}>⏳ Đang tải lên Google Drive...</div>
                     ) : form.image ? (
                       <div>
-                        <img src={form.image} alt="Preview" style={{ maxHeight: 120, borderRadius: 8, marginBottom: 12 }} />
+                        <img src={getOptimizedImage(form.image)} alt="Preview" style={{ maxHeight: 120, borderRadius: 8, marginBottom: 12 }} />
                         <div>
                           <button type="button" className="btn btn-secondary btn-sm" onClick={() => setForm({...form, image: ""})}>Xóa ảnh</button>
                         </div>
