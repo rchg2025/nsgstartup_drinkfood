@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
         category: { select: { id: true, name: true, icon: true } },
         sizes: { select: { id: true, name: true, priceAdd: true } },
       },
-      orderBy: { name: "asc" },
+      orderBy: { createdAt: "desc" },
     });
     const res = NextResponse.json(products);
     res.headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
