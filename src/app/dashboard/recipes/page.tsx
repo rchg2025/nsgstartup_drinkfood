@@ -13,9 +13,10 @@ export default function RecipePage() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 20;
+  const ITEMS_PER_PAGE = 15;
 
   const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -119,6 +120,33 @@ export default function RecipePage() {
           <div className="empty-state">
             <div className="empty-state-icon">📋</div>
             <div className="empty-state-title">Chưa có món nào</div>
+          </div>
+        )}
+        
+        {totalPages > 1 && (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderTop: "1px solid var(--border-color)" }}>
+            <span style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>
+              Hiển thị {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)} trên tổng số {filteredProducts.length} món
+            </span>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button 
+                className="btn btn-secondary btn-sm" 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Trước
+              </button>
+              <div style={{ display: "flex", alignItems: "center", padding: "0 8px", fontSize: "0.875rem" }}>
+                Trang {currentPage} / {totalPages}
+              </div>
+              <button 
+                className="btn btn-secondary btn-sm" 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages}
+              >
+                Sau
+              </button>
+            </div>
           </div>
         )}
       </div>
