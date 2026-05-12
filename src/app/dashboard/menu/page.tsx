@@ -17,7 +17,6 @@ export default function MenuPage() {
   const [toast, setToast] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
   const ITEMS_PER_PAGE = 20;
 
   const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
