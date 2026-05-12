@@ -8,6 +8,7 @@ export default function MenuPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [toppings, setToppings] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<"products" | "categories" | "toppings">("products");
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editItem, setEditItem] = useState<any>(null);
@@ -16,7 +17,12 @@ export default function MenuPage() {
   const [toast, setToast] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const ITEMS_PER_PAGE = 20;
+
+  const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredCategories = categories.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredToppings = toppings.filter(t => t.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const getOptimizedImage = (url: string) => {
     if (!url) return url;
@@ -189,6 +195,20 @@ export default function MenuPage() {
         <button className="btn btn-primary" onClick={openCreate}>+ Thêm mới</button>
       </div>
 
+      <div style={{ marginBottom: 16, display: "flex", gap: 12 }}>
+        <div style={{ flex: 1, position: "relative" }}>
+          <input 
+            type="text" 
+            className="form-input" 
+            placeholder="🔍 Tìm kiếm sản phẩm, danh mục, topping..." 
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+            style={{ paddingLeft: 36 }}
+          />
+          <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }}>🔍</span>
+        </div>
+      </div>
+
       {/* Tabs */}
       <div className={styles.tabs}>
         {(["products", "categories", "toppings"] as const).map((tab) => (
@@ -209,7 +229,7 @@ export default function MenuPage() {
       {activeTab === "products" && (
         <>
           <div className={styles.productsGrid}>
-            {products.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((product) => (
+            {filteredProducts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((product) => (
               <div key={product.id} className={`${styles.productCard} ${!product.available ? styles.unavailable : ""}`}>
               <div className={styles.productImage}>
                 {product.image ? <img src={getOptimizedImage(product.image)} alt={product.name} /> : <span>🧋</span>}
@@ -244,7 +264,7 @@ export default function MenuPage() {
               </div>
             </div>
           ))}
-          {products.length === 0 && !loading && (
+          {filteredProducts.length === 0 && !loading && (
             <div className="empty-state" style={{ gridColumn: "1/-1" }}>
               <div className="empty-state-icon">🍱</div>
               <div className="empty-state-title">Chưa có sản phẩm nào</div>
@@ -252,7 +272,7 @@ export default function MenuPage() {
           )}
           </div>
           
-          {products.length > ITEMS_PER_PAGE && (
+          {filteredProducts.length > ITEMS_PER_PAGE && (
             <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginTop: "24px", marginBottom: "24px" }}>
               <button 
                 className="btn btn-secondary btn-sm" 
@@ -262,12 +282,12 @@ export default function MenuPage() {
                 Trước
               </button>
               <div style={{ display: "flex", alignItems: "center", padding: "0 12px", background: "rgba(255,255,255,0.1)", borderRadius: "8px" }}>
-                <span>Trang {currentPage} / {Math.ceil(products.length / ITEMS_PER_PAGE)}</span>
+                <span>Trang {currentPage} / {Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)}</span>
               </div>
               <button 
                 className="btn btn-secondary btn-sm" 
-                disabled={currentPage === Math.ceil(products.length / ITEMS_PER_PAGE)}
-                onClick={() => setCurrentPage(p => Math.min(Math.ceil(products.length / ITEMS_PER_PAGE), p + 1))}
+                disabled={currentPage === Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)}
+                onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredProducts.length / ITEMS_PER_PAGE), p + 1))}
               >
                 Sau
               </button>
@@ -282,7 +302,7 @@ export default function MenuPage() {
           <table className="table">
             <thead><tr><th>Icon</th><th>Tên danh mục</th><th>Thứ tự</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
             <tbody>
-              {categories.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((cat) => (
+              {filteredCategories.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((cat) => (
                 <tr key={cat.id}>
                   <td style={{ fontSize: 24 }}>{cat.icon}</td>
                   <td><strong>{cat.name}</strong></td>
@@ -298,7 +318,7 @@ export default function MenuPage() {
               ))}
             </tbody>
           </table>
-          {categories.length > ITEMS_PER_PAGE && (
+          {filteredCategories.length > ITEMS_PER_PAGE && (
             <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginTop: "16px", marginBottom: "16px" }}>
               <button 
                 className="btn btn-secondary btn-sm" 
@@ -308,12 +328,12 @@ export default function MenuPage() {
                 Trước
               </button>
               <div style={{ display: "flex", alignItems: "center", padding: "0 12px", background: "rgba(255,255,255,0.05)", borderRadius: "8px", fontSize: 13, color: "var(--text-secondary)" }}>
-                <span>Trang {currentPage} / {Math.ceil(categories.length / ITEMS_PER_PAGE)}</span>
+                <span>Trang {currentPage} / {Math.ceil(filteredCategories.length / ITEMS_PER_PAGE)}</span>
               </div>
               <button 
                 className="btn btn-secondary btn-sm" 
-                disabled={currentPage === Math.ceil(categories.length / ITEMS_PER_PAGE)}
-                onClick={() => setCurrentPage(p => Math.min(Math.ceil(categories.length / ITEMS_PER_PAGE), p + 1))}
+                disabled={currentPage === Math.ceil(filteredCategories.length / ITEMS_PER_PAGE)}
+                onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredCategories.length / ITEMS_PER_PAGE), p + 1))}
               >
                 Sau
               </button>
@@ -328,7 +348,7 @@ export default function MenuPage() {
           <table className="table">
             <thead><tr><th>Tên topping</th><th>Giá</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
             <tbody>
-              {toppings.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((top) => (
+              {filteredToppings.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((top) => (
                 <tr key={top.id}>
                   <td><strong>{top.name}</strong></td>
                   <td style={{ color: "var(--accent)", fontWeight: 600 }}>{formatCurrency(top.price)}</td>
@@ -343,7 +363,7 @@ export default function MenuPage() {
               ))}
             </tbody>
           </table>
-          {toppings.length > ITEMS_PER_PAGE && (
+          {filteredToppings.length > ITEMS_PER_PAGE && (
             <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginTop: "16px", marginBottom: "16px" }}>
               <button 
                 className="btn btn-secondary btn-sm" 
@@ -353,12 +373,12 @@ export default function MenuPage() {
                 Trước
               </button>
               <div style={{ display: "flex", alignItems: "center", padding: "0 12px", background: "rgba(255,255,255,0.05)", borderRadius: "8px", fontSize: 13, color: "var(--text-secondary)" }}>
-                <span>Trang {currentPage} / {Math.ceil(toppings.length / ITEMS_PER_PAGE)}</span>
+                <span>Trang {currentPage} / {Math.ceil(filteredToppings.length / ITEMS_PER_PAGE)}</span>
               </div>
               <button 
                 className="btn btn-secondary btn-sm" 
-                disabled={currentPage === Math.ceil(toppings.length / ITEMS_PER_PAGE)}
-                onClick={() => setCurrentPage(p => Math.min(Math.ceil(toppings.length / ITEMS_PER_PAGE), p + 1))}
+                disabled={currentPage === Math.ceil(filteredToppings.length / ITEMS_PER_PAGE)}
+                onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredToppings.length / ITEMS_PER_PAGE), p + 1))}
               >
                 Sau
               </button>

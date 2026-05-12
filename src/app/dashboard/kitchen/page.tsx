@@ -9,6 +9,7 @@ export default function KitchenPage() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [recipeModal, setRecipeModal] = useState<{ name: string; recipe: string } | null>(null);
   const ITEMS_PER_PAGE = 20;
 
   const fetchOrders = async () => {
@@ -159,6 +160,14 @@ export default function KitchenPage() {
                       {item.note && (
                         <div className={styles.itemNote}>📝 {item.note}</div>
                       )}
+                      {item.product?.recipe && (
+                        <button
+                          className={styles.recipeBtn}
+                          onClick={() => setRecipeModal({ name: item.product.name, recipe: item.product.recipe })}
+                        >
+                          📖 Xem công thức
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -220,6 +229,23 @@ export default function KitchenPage() {
           >
             Sau
           </button>
+        </div>
+      )}
+
+      {recipeModal && (
+        <div className="modal-overlay" onClick={() => setRecipeModal(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 560 }}>
+            <div className="modal-header">
+              <h2 className="modal-title">📖 Công thức: {recipeModal.name}</h2>
+              <button className="modal-close" onClick={() => setRecipeModal(null)}>✕</button>
+            </div>
+            <div className={styles.recipeContent}>
+              {recipeModal.recipe}
+            </div>
+            <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
+              <button className="btn btn-secondary" onClick={() => setRecipeModal(null)}>Đóng</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

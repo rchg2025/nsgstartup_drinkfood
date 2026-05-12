@@ -26,7 +26,13 @@ export default function CampaignsPage() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [historyPage, setHistoryPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const ITEMS_PER_PAGE = 20;
+
+  const filteredCampaigns = campaigns.filter(c =>
+    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (c.giftName && c.giftName.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   const fetchCampaigns = async () => {
     setLoading(true);
@@ -142,6 +148,20 @@ export default function CampaignsPage() {
         </button>
       </div>
 
+      <div style={{ marginBottom: 16, display: "flex", gap: 12 }}>
+        <div style={{ flex: 1, position: "relative" }}>
+          <input 
+            type="text" 
+            className="form-input" 
+            placeholder="🔍 Tìm kiếm chiến dịch hoặc phần quà..." 
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+            style={{ paddingLeft: 36 }}
+          />
+          <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }}>🔍</span>
+        </div>
+      </div>
+
       {loading ? (
         <div className="loading-spinner" style={{ margin: "40px auto" }} />
       ) : (
@@ -161,7 +181,7 @@ export default function CampaignsPage() {
                 </tr>
               </thead>
               <tbody>
-                {campaigns.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((c) => (
+                {filteredCampaigns.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((c) => (
                   <tr key={c.id}>
                     <td>
                       <strong>{c.name}</strong>
@@ -214,7 +234,7 @@ export default function CampaignsPage() {
                     </td>
                   </tr>
                 ))}
-                {campaigns.length === 0 && (
+                {filteredCampaigns.length === 0 && (
                   <tr>
                     <td colSpan={7} style={{ textAlign: "center", padding: 20 }}>
                       Chưa có chiến dịch nào được tạo.
@@ -224,7 +244,7 @@ export default function CampaignsPage() {
               </tbody>
             </table>
           </div>
-          {campaigns.length > ITEMS_PER_PAGE && (
+          {filteredCampaigns.length > ITEMS_PER_PAGE && (
             <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginTop: "16px", marginBottom: "16px" }}>
               <button 
                 className="btn btn-secondary btn-sm" 
@@ -234,12 +254,12 @@ export default function CampaignsPage() {
                 Trước
               </button>
               <div style={{ display: "flex", alignItems: "center", padding: "0 12px", background: "rgba(255,255,255,0.05)", borderRadius: "8px", fontSize: 13, color: "var(--text-secondary)" }}>
-                <span>Trang {currentPage} / {Math.ceil(campaigns.length / ITEMS_PER_PAGE)}</span>
+                <span>Trang {currentPage} / {Math.ceil(filteredCampaigns.length / ITEMS_PER_PAGE)}</span>
               </div>
               <button 
                 className="btn btn-secondary btn-sm" 
-                disabled={currentPage === Math.ceil(campaigns.length / ITEMS_PER_PAGE)}
-                onClick={() => setCurrentPage(p => Math.min(Math.ceil(campaigns.length / ITEMS_PER_PAGE), p + 1))}
+                disabled={currentPage === Math.ceil(filteredCampaigns.length / ITEMS_PER_PAGE)}
+                onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredCampaigns.length / ITEMS_PER_PAGE), p + 1))}
               >
                 Sau
               </button>

@@ -21,6 +21,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       data: {
         name: body.name,
         description: body.description,
+        recipe: body.recipe,
         image: body.image,
         price: body.price,
         costPrice: body.costPrice !== undefined ? body.costPrice : undefined,

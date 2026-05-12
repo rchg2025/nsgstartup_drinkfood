@@ -1,0 +1,16 @@
+.avatarMini {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.avatarMini img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

@@ -16,6 +16,8 @@ export async function GET(req: NextRequest) {
       select: {
         id: true,
         name: true,
+        description: true,
+        recipe: true,
         price: true,
         costPrice: true,
         image: true,
@@ -44,6 +46,7 @@ export async function POST(req: NextRequest) {
       data: {
         name: body.name,
         description: body.description,
+        recipe: body.recipe,
         image: body.image,
         price: body.price,
         costPrice: body.costPrice || 0,

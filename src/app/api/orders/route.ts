@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
       include: {
         items: {
           include: {
-            product: { select: { id: true, name: true } },
+            product: { select: { id: true, name: true, recipe: true } },
             toppings: { include: { topping: { select: { id: true, name: true } } } },
           },
         },
@@ -187,7 +187,7 @@ export async function POST(req: NextRequest) {
       include: {
         items: {
           include: {
-            product: { select: { id: true, name: true } },
+            product: { select: { id: true, name: true, recipe: true } },
             toppings: { include: { topping: { select: { id: true, name: true } } } },
           },
         },

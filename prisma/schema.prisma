@@ -113,6 +113,7 @@ model Product {
   id          String        @id @default(cuid())
   name        String
   description String?
+  recipe      String?
   image       String?
   price       Int
   costPrice   Int           @default(0)
