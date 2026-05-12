@@ -614,6 +614,16 @@ export default function PublicOrderingPage() {
               <button className="modal-close" onClick={() => setSelectedProduct(null)}>✕</button>
             </div>
 
+            {selectedProduct.image && (
+              <div style={{ marginBottom: "20px", display: "flex", justifyContent: "center" }}>
+                <img 
+                  src={selectedProduct.image} 
+                  alt={selectedProduct.name} 
+                  style={{ width: "100%", maxHeight: "250px", objectFit: "cover", borderRadius: "12px", boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }} 
+                />
+              </div>
+            )}
+
             {/* Size selection */}
             {selectedProduct.sizes && selectedProduct.sizes.length > 0 && (
               <div className="form-group" style={{ marginBottom: "20px" }}>
