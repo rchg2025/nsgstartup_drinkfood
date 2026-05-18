@@ -100,22 +100,30 @@ export default function PublicOrderingPage() {
   const [lookupResult, setLookupResult] = useState<any>(null);
   const [lookupError, setLookupError] = useState("");
 
+  const [pageLoading, setPageLoading] = useState(true);
+
   useEffect(() => {
     const fetchData = async () => {
-      const [catRes, prodRes, topRes, setRes, campRes] = await Promise.all([
-        fetch("/api/categories", { next: { revalidate: 60 } }),
-        fetch("/api/products?available=true", { next: { revalidate: 60 } }),
-        fetch("/api/toppings", { next: { revalidate: 60 } }),
-        fetch("/api/settings", { next: { revalidate: 60 } }),
-        fetch("/api/public/campaigns", { next: { revalidate: 60 } }),
-      ]);
-      setCategories(await catRes.json());
-      setProducts(await prodRes.json());
-      setToppings(await topRes.json());
-      setBankSettings(await setRes.json());
-      
-      const campaignsData = await campRes.json();
-      if (Array.isArray(campaignsData)) setCampaigns(campaignsData);
+      try {
+        const [catRes, prodRes, topRes, setRes, campRes] = await Promise.all([
+          fetch("/api/categories", { next: { revalidate: 60 } }),
+          fetch("/api/products?available=true", { next: { revalidate: 60 } }),
+          fetch("/api/toppings", { next: { revalidate: 60 } }),
+          fetch("/api/settings", { next: { revalidate: 60 } }),
+          fetch("/api/public/campaigns", { next: { revalidate: 60 } }),
+        ]);
+        setCategories(await catRes.json());
+        setProducts(await prodRes.json());
+        setToppings(await topRes.json());
+        setBankSettings(await setRes.json());
+        
+        const campaignsData = await campRes.json();
+        if (Array.isArray(campaignsData)) setCampaigns(campaignsData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setPageLoading(false);
+      }
     };
     fetchData();
   }, []);
@@ -299,6 +307,18 @@ export default function PublicOrderingPage() {
       setLookupLoading(false);
     }
   };
+
+  if (pageLoading) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#f4f6fa" }}>
+        <style>{`
+          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        `}</style>
+        <div style={{ borderColor: "#e5e7eb", borderTopColor: "var(--purple)", borderWidth: "4px", borderStyle: "solid", borderRadius: "50%", width: "48px", height: "48px", animation: "spin 1s linear infinite" }}></div>
+        <div style={{ marginTop: "24px", fontSize: "16px", fontWeight: 600, color: "var(--text-secondary)" }}>Đang tải thực đơn...</div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.posLayout}>
