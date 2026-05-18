@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 
+export const revalidate = 60;
+
 export async function GET() {
   try {
     const categories = await prisma.category.findMany({
