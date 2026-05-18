@@ -60,6 +60,33 @@ export default function LogsPage() {
     fetchLogs(1);
   }, [startDate, endDate, userIdFilter]);
 
+  const [cleaning, setCleaning] = useState(false);
+
+  const handleCleanup = async (days: string) => {
+    if (!days) return;
+    const confirmMsg = days === "all" 
+      ? "Bạn có chắc chắn muốn XÓA TOÀN BỘ nhật ký hệ thống? Hành động này không thể hoàn tác!"
+      : `Bạn có chắc chắn muốn xóa các nhật ký cũ hơn ${days} ngày?`;
+      
+    if (!confirm(confirmMsg)) return;
+    
+    setCleaning(true);
+    try {
+      const res = await fetch(`/api/logs?days=${days}`, { method: "DELETE" });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`Đã xóa thành công ${data.count} dòng nhật ký!`);
+        fetchLogs(1);
+      } else {
+        alert("Lỗi: " + data.error);
+      }
+    } catch (e) {
+      alert("Lỗi kết nối");
+    } finally {
+      setCleaning(false);
+    }
+  };
+
   const handleExport = async () => {
     // Fetch all records for export (temporarily set high limit or just use the current data?)
     // The user requested xlsx export. We will export whatever is retrieved but let's query all matched for these filters.
@@ -94,14 +121,34 @@ export default function LogsPage() {
 
   return (
     <div className={styles.container}>
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 className="page-title">📝 Nhật ký hoạt động</h1>
           <p className="page-subtitle">Theo dõi lịch sử thao tác của các thành viên trên hệ thống (Tối đa 20 dòng / trang)</p>
         </div>
-        <button onClick={handleExport} className="btn" style={{ background: '#10b981', color: 'white' }}>
-          📥 Xuất Excel (.xlsx)
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <select 
+            className="form-input" 
+            style={{ margin: 0, padding: '8px 12px', minWidth: '180px', fontWeight: 600, color: 'var(--red)', border: '1px solid var(--red)' }}
+            onChange={(e) => {
+              if (e.target.value) {
+                handleCleanup(e.target.value);
+                e.target.value = ""; // Reset
+              }
+            }}
+            disabled={cleaning}
+          >
+            <option value="">🧹 Dọn dẹp bộ nhớ...</option>
+            <option value="90">Xóa log trước 90 ngày</option>
+            <option value="60">Xóa log trước 60 ngày</option>
+            <option value="30">Xóa log trước 30 ngày</option>
+            <option value="15">Xóa log trước 15 ngày</option>
+            <option value="all">⚠ Xóa TOÀN BỘ log</option>
+          </select>
+          <button onClick={handleExport} className="btn" style={{ background: '#10b981', color: 'white' }}>
+            📥 Xuất Excel (.xlsx)
+          </button>
+        </div>
       </div>
 
       <div className={styles.filters}>

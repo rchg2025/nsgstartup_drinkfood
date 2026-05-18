@@ -79,3 +79,56 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to create log" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  if (!session || (session.user as any).role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { searchParams } = new URL(req.url);
+    const days = searchParams.get("days");
+
+    if (!days) {
+      return NextResponse.json({ error: "Missing days parameter" }, { status: 400 });
+    }
+
+    let result;
+    if (days === "all") {
+      result = await prisma.activityLog.deleteMany({});
+    } else {
+      const daysInt = parseInt(days, 10);
+      if (isNaN(daysInt)) {
+        return NextResponse.json({ error: "Invalid days parameter" }, { status: 400 });
+      }
+      
+      const thresholdDate = new Date();
+      thresholdDate.setDate(thresholdDate.getDate() - daysInt);
+      
+      result = await prisma.activityLog.deleteMany({
+        where: {
+          createdAt: {
+            lt: thresholdDate
+          }
+        }
+      });
+    }
+
+    // Log the cleanup action itself if we didn't clear all
+    if (days !== "all") {
+      await prisma.activityLog.create({
+        data: {
+          userId: session?.user?.id as string,
+          action: "Dọn dẹp nhật ký",
+          details: `Đã xóa ${result.count} dòng nhật ký cũ hơn ${days} ngày`,
+        }
+      });
+    }
+
+    return NextResponse.json({ success: true, count: result.count });
+  } catch (error) {
+    console.error("Error deleting logs:", error);
+    return NextResponse.json({ error: "Failed to delete logs" }, { status: 500 });
+  }
+}
