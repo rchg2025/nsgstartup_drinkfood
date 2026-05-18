@@ -25,6 +25,7 @@
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
+  gap: 20px;
 }
 
 .brandName {
@@ -91,12 +92,21 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 4px;
-  flex-shrink: 0;
-  scrollbar-width: none;
+  padding-bottom: 8px;
+  flex: 1;
+  min-width: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 .categories::-webkit-scrollbar {
-  display: none;
+  height: 6px;
+}
+.categories::-webkit-scrollbar-track {
+  background: transparent;
+}
+.categories::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
 }
 
 .catBtn {
