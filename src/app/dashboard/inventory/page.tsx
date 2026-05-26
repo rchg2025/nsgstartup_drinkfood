@@ -51,6 +51,8 @@ export default function InventoryPage() {
   };
 
   const [historySearchText, setHistorySearchText] = useState("");
+  const [historyCurrentPage, setHistoryCurrentPage] = useState(1);
+  const historyItemsPerPage = 10;
 
   const handleOpenAddStock = (product: any) => {
     setSelectedProduct(product);
@@ -62,13 +64,14 @@ export default function InventoryPage() {
   const handleOpenHistory = () => {
     fetchLogs();
     setHistorySearchText("");
+    setHistoryCurrentPage(1);
     setShowHistory(true);
   };
 
   const handleExportExcel = () => {
     if (logs.length === 0) return;
     
-    // Prepare data for Excel
+    // Prepare data for Excel (export ALL filtered logs, ignoring pagination)
     const data = filteredLogs.map((log) => ({
       "Sản phẩm": log.product?.name || "N/A",
       "Số lượng nhập": log.quantityAdded,
@@ -128,6 +131,15 @@ export default function InventoryPage() {
     const matchUser = log.user?.name?.toLowerCase().includes(term);
     return matchProduct || matchNote || matchUser;
   });
+
+  // History Pagination
+  const historyTotalPages = Math.ceil(filteredLogs.length / historyItemsPerPage);
+  const paginatedHistoryLogs = filteredLogs.slice((historyCurrentPage - 1) * historyItemsPerPage, historyCurrentPage * historyItemsPerPage);
+
+  // Reset page when search changes
+  useEffect(() => {
+    setHistoryCurrentPage(1);
+  }, [historySearchText]);
 
   // Filter products
   const filteredProducts = products.filter(p => {
@@ -351,22 +363,46 @@ export default function InventoryPage() {
               {filteredLogs.length === 0 ? (
                 <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px 0" }}>Không tìm thấy lịch sử nhập hàng nào.</div>
               ) : (
-                <div className={styles.historyList}>
-                  {filteredLogs.map(log => (
-                    <div key={log.id} className={styles.historyItem}>
-                      <div>
-                        <div style={{ fontWeight: 600 }}>{log.product?.name}</div>
-                        <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4 }}>
-                          Người nhập: {log.user?.name || "Hệ thống"} {log.note && `- Ghi chú: ${log.note}`}
+                <>
+                  <div className={styles.historyList}>
+                    {paginatedHistoryLogs.map(log => (
+                      <div key={log.id} className={styles.historyItem}>
+                        <div>
+                          <div style={{ fontWeight: 600 }}>{log.product?.name}</div>
+                          <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4 }}>
+                            Người nhập: {log.user?.name || "Hệ thống"} {log.note && `- Ghi chú: ${log.note}`}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ color: "var(--green)", fontWeight: 700, fontSize: 16 }}>+{log.quantityAdded}</div>
+                          <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{formatTime(log.createdAt)}</div>
                         </div>
                       </div>
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ color: "var(--green)", fontWeight: 700, fontSize: 16 }}>+{log.quantityAdded}</div>
-                        <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{formatTime(log.createdAt)}</div>
-                      </div>
+                    ))}
+                  </div>
+
+                  {historyTotalPages > 1 && (
+                    <div className={styles.pagination} style={{ marginTop: "16px", padding: "10px 0", borderTop: "1px solid var(--border-color)" }}>
+                      <button 
+                        className={styles.pageBtn} 
+                        disabled={historyCurrentPage === 1}
+                        onClick={() => setHistoryCurrentPage(prev => Math.max(1, prev - 1))}
+                      >
+                        ❮ Trước
+                      </button>
+                      <span className={styles.pageInfo}>
+                        Trang {historyCurrentPage} / {historyTotalPages}
+                      </span>
+                      <button 
+                        className={styles.pageBtn} 
+                        disabled={historyCurrentPage === historyTotalPages}
+                        onClick={() => setHistoryCurrentPage(prev => Math.min(historyTotalPages, prev + 1))}
+                      >
+                        Sau ❯
+                      </button>
                     </div>
-                  ))}
-                </div>
+                  )}
+                </>
               )}
             </div>
           </div>
