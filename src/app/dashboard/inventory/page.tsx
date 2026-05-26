@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { formatCurrency, formatTime } from "@/lib/utils";
+import * as XLSX from "xlsx";
 import styles from "./page.module.css";
 
 export default function InventoryPage() {
@@ -49,6 +50,8 @@ export default function InventoryPage() {
     } catch (e) {}
   };
 
+  const [historySearchText, setHistorySearchText] = useState("");
+
   const handleOpenAddStock = (product: any) => {
     setSelectedProduct(product);
     setQuantityToAdd("");
@@ -58,7 +61,29 @@ export default function InventoryPage() {
 
   const handleOpenHistory = () => {
     fetchLogs();
+    setHistorySearchText("");
     setShowHistory(true);
+  };
+
+  const handleExportExcel = () => {
+    if (logs.length === 0) return;
+    
+    // Prepare data for Excel
+    const data = filteredLogs.map((log) => ({
+      "Sản phẩm": log.product?.name || "N/A",
+      "Số lượng nhập": log.quantityAdded,
+      "Ghi chú": log.note || "",
+      "Người nhập": log.user?.name || "Hệ thống",
+      "Thời gian": formatTime(log.createdAt),
+    }));
+
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "LichSuNhapHang");
+
+    // Generate Excel file and trigger download
+    XLSX.writeFile(workbook, `LichSuNhapHang_${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
   const handleSubmitAddStock = async (e: React.FormEvent) => {
@@ -94,6 +119,15 @@ export default function InventoryPage() {
 
   // Extract unique categories
   const categories = Array.from(new Set(products.map(p => p.category?.name).filter(Boolean)));
+
+  // Filter logs
+  const filteredLogs = logs.filter(log => {
+    const term = historySearchText.toLowerCase();
+    const matchProduct = log.product?.name?.toLowerCase().includes(term);
+    const matchNote = log.note?.toLowerCase().includes(term);
+    const matchUser = log.user?.name?.toLowerCase().includes(term);
+    return matchProduct || matchNote || matchUser;
+  });
 
   // Filter products
   const filteredProducts = products.filter(p => {
@@ -293,11 +327,32 @@ export default function InventoryPage() {
               <button style={{ background: "transparent", border: "none", fontSize: 20, cursor: "pointer" }} onClick={() => setShowHistory(false)}>✕</button>
             </div>
             <div className={styles.modalBody}>
-              {logs.length === 0 ? (
-                <div style={{ textAlign: "center", color: "var(--text-muted)" }}>Chưa có lịch sử nhập hàng nào.</div>
+              <div style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
+                <div className={styles.searchBox} style={{ flex: 1 }}>
+                  <span className={styles.searchIcon}>🔍</span>
+                  <input 
+                    type="text" 
+                    placeholder="Tìm kiếm theo sản phẩm, ghi chú hoặc người nhập..." 
+                    value={historySearchText}
+                    onChange={(e) => setHistorySearchText(e.target.value)}
+                    className={styles.searchInput}
+                  />
+                </div>
+                <button 
+                  className={`${styles.btn} ${styles.btnPrimary}`} 
+                  onClick={handleExportExcel}
+                  disabled={filteredLogs.length === 0}
+                  title="Xuất dữ liệu ra file Excel"
+                >
+                  Xuất Excel
+                </button>
+              </div>
+
+              {filteredLogs.length === 0 ? (
+                <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px 0" }}>Không tìm thấy lịch sử nhập hàng nào.</div>
               ) : (
                 <div className={styles.historyList}>
-                  {logs.map(log => (
+                  {filteredLogs.map(log => (
                     <div key={log.id} className={styles.historyItem}>
                       <div>
                         <div style={{ fontWeight: 600 }}>{log.product?.name}</div>
