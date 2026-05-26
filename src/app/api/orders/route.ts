@@ -216,6 +216,20 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // Deduct stock quantity
+    for (const item of body.items) {
+      try {
+        await prisma.product.update({
+          where: { id: item.productId },
+          data: {
+            stockQuantity: { decrement: item.quantity }
+          }
+        });
+      } catch (e) {
+        console.error("Failed to deduct stock for product: ", item.productId);
+      }
+    }
+
     // Create notification for cashiers to verify the order first
     await prisma.notification.create({
       data: {

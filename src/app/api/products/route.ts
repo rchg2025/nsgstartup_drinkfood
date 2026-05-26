@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     const products = await prisma.product.findMany({
       where: {
         ...(categoryId ? { categoryId } : {}),
-        ...(available === "true" ? { available: true } : {}),
+        ...(available === "true" ? { available: true, stockQuantity: { gt: 0 } } : {}),
       },
       select: {
         id: true,
@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
         costPrice: true,
         image: true,
         available: true,
+        stockQuantity: true,
         category: { select: { id: true, name: true, icon: true } },
         sizes: { select: { id: true, name: true, priceAdd: true } },
       },

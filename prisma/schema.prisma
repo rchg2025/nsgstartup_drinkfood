@@ -75,6 +75,7 @@ model User {
   conversations   ConversationParticipant[]
   messagesSent    Message[]
   activityLogs    ActivityLog[]
+  inventoryLogs   InventoryLog[]
 
   @@map("users")
 }
@@ -119,12 +120,14 @@ model Product {
   costPrice   Int           @default(0)
   categoryId  String
   available   Boolean       @default(true)
+  stockQuantity Int         @default(0)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
   category    Category      @relation(fields: [categoryId], references: [id])
   sizes       ProductSize[]
   orderItems  OrderItem[]
+  inventoryLogs InventoryLog[]
 
   @@map("products")
 }
@@ -368,4 +371,18 @@ model ActivityLog {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("activity_logs")
+}
+
+model InventoryLog {
+  id            String   @id @default(cuid())
+  productId     String
+  quantityAdded Int
+  note          String?
+  userId        String?
+  createdAt     DateTime @default(now())
+
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("inventory_logs")
 }
