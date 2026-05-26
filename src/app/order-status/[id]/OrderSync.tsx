@@ -15,6 +15,7 @@ export default function OrderSync({ id, initialStatus }: { id: string, initialSt
     lastCheckedAt.setSeconds(lastCheckedAt.getSeconds() - 2);
 
     const poll = async () => {
+      if (document.hidden) return; // Vercel optimization
       try {
         const res = await fetch(`/api/sync?lastCheckedAt=${lastCheckedAt.toISOString()}`);
         const data = await res.json();

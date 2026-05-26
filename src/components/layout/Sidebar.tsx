@@ -40,6 +40,7 @@ export default function Sidebar() {
   useEffect(() => {
     if (!role) return;
     const fetchNotifs = async () => {
+      if (document.hidden) return; // Vercel optimization
       try {
         const res = await fetch(`/api/notifications?role=${role}`);
         const data = await res.json();

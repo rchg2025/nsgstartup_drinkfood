@@ -134,7 +134,7 @@ export async function GET(req: NextRequest) {
       _sum: { finalAmount: true },
     });
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       totalRevenue: revenueResult._sum.finalAmount || 0,
       totalOrders: revenueResult._count,
       ordersByStatus,
@@ -144,6 +144,8 @@ export async function GET(req: NextRequest) {
       netProfit: netProfitVal,
       totalCommission: totalCommissionVal,
     });
+    res.headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+    return res;
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch stats" }, { status: 500 });
   }

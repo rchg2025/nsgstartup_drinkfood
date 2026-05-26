@@ -88,6 +88,7 @@ export default function ChatPage() {
     lastCheckedAt.setSeconds(lastCheckedAt.getSeconds() - 2);
 
     const poll = async () => {
+      if (document.hidden) return; // Vercel optimization: Don't poll when tab is hidden
       try {
         const res = await fetch(`/api/chat/stream?lastMessageDate=${lastCheckedAt.toISOString()}`);
         const payload = await res.json();
