@@ -124,7 +124,7 @@
 }
 
 .searchInput:focus {
-  border-color: var(--primary);
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(82, 34, 208, 0.1);
 }
 
@@ -145,7 +145,7 @@
 }
 
 .filterSelect:focus {
-  border-color: var(--primary);
+  border-color: var(--accent);
 }
 
 /* Pagination */
@@ -244,7 +244,7 @@
 }
 
 .input:focus {
-  border-color: var(--primary);
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(82, 34, 208, 0.1);
 }
 
@@ -273,7 +273,7 @@
 }
 
 .btnPrimary {
-  background: var(--primary);
+  background: var(--accent);
   color: white;
 }
 
