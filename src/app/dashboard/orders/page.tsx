@@ -46,11 +46,16 @@ export default function OrdersPage() {
 
   // Real-time synchronization
   useEffect(() => {
-    const eventSource = new EventSource("/api/sync");
-    eventSource.onmessage = (event) => {
+    let lastCheckedAt = new Date();
+    lastCheckedAt.setSeconds(lastCheckedAt.getSeconds() - 2);
+
+    const poll = async () => {
       try {
-        const data = JSON.parse(event.data);
+        const res = await fetch(`/api/sync?lastCheckedAt=${lastCheckedAt.toISOString()}`);
+        const data = await res.json();
+        
         if (data.type === "update" && data.changes) {
+          lastCheckedAt = new Date(data.changes[0].updatedAt);
           fetchOrders();
           
           // Distinct sounds per status change
@@ -66,7 +71,9 @@ export default function OrdersPage() {
         }
       } catch (e) {}
     };
-    return () => eventSource.close();
+
+    const intervalId = setInterval(poll, 10000);
+    return () => clearInterval(intervalId);
   }, [statusFilter, startDate, endDate]); // Safe to re-subscribe if filters change
 
 

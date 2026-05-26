@@ -10,85 +10,42 @@ export async function GET(req: NextRequest) {
 
   const currentUserId = (session.user as any).id;
   const { searchParams } = new URL(req.url);
-  let lastMessageDate = searchParams.get("lastMessageDate") ? new Date(searchParams.get("lastMessageDate") as string) : null;
+  const lastMessageDateStr = searchParams.get("lastMessageDate");
+  let lastMessageDate = lastMessageDateStr ? new Date(lastMessageDateStr) : null;
 
-  const encoder = new TextEncoder();
-  let intervalId: ReturnType<typeof setInterval>;
-  let closed = false;
+  if (!lastMessageDate) {
+     return NextResponse.json({ type: "connected" });
+  }
 
-  const stream = new ReadableStream({
-    start(controller) {
-      const send = (data: any) => {
-        if (!closed) {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
-        }
+  try {
+    const userParticipant = await prisma.conversationParticipant.findMany({
+      where: { userId: currentUserId },
+      select: { conversationId: true },
+    });
+    const userConvIds = userParticipant.map(p => p.conversationId);
+
+    if (userConvIds.length > 0) {
+      const where: any = {
+        conversationId: { in: userConvIds },
+        createdAt: { gt: lastMessageDate }
       };
 
-      send({ type: "connected", message: "Chat SSE connected" });
+      const newMessages = await prisma.message.findMany({
+        where,
+        include: {
+          sender: { select: { id: true, name: true, avatar: true } },
+        },
+        orderBy: { createdAt: "asc" },
+      });
 
-      intervalId = setInterval(async () => {
-        if (closed) {
-          clearInterval(intervalId);
-          return;
-        }
-
-        try {
-          // Find all conversations the user is in
-          const userParticipant = await prisma.conversationParticipant.findMany({
-            where: { userId: currentUserId },
-            select: { conversationId: true },
-          });
-          const userConvIds = userParticipant.map(p => p.conversationId);
-
-          if (userConvIds.length > 0) {
-            const where: any = {
-              conversationId: { in: userConvIds },
-            };
-            if (lastMessageDate) {
-              where.createdAt = { gt: lastMessageDate };
-            } else {
-              // If no date provided on connection, we don't return old messages
-              const newestMessage = await prisma.message.findFirst({
-                where: { conversationId: { in: userConvIds } },
-                orderBy: { createdAt: "desc" },
-              });
-              if (newestMessage) {
-                lastMessageDate = newestMessage.createdAt;
-              } else {
-                lastMessageDate = new Date();
-              }
-              return; // Skip first poll
-            }
-
-            const newMessages = await prisma.message.findMany({
-              where,
-              include: {
-                sender: { select: { id: true, name: true, avatar: true } },
-              },
-              orderBy: { createdAt: "asc" },
-            });
-
-            if (newMessages.length > 0) {
-              lastMessageDate = newMessages[newMessages.length - 1].createdAt;
-              send({ type: "messages", data: newMessages });
-            }
-          }
-        } catch (err) {
-          // Suppress DB errors in loop
-        }
-      }, 500); // Poll every 500ms for fast chat feeling
-    },
-    cancel() {
-      closed = true;
-      clearInterval(intervalId);
-    },
-  });
-
-  return new NextResponse(stream, {
-    headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      "Connection": "keep-alive",
-    },
-  });
+      if (newMessages.length > 0) {
+        return NextResponse.json({ type: "messages", data: newMessages });
+      }
+    }
+    
+    return NextResponse.json({ type: "no_messages" });
+  } catch (err) {
+    return NextResponse.json({ error: "Polling error" }, { status: 500 });
+  }
 }
+

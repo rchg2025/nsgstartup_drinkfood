@@ -11,17 +11,23 @@ export default function OrderSync({ id, initialStatus }: { id: string, initialSt
   useEffect(() => {
     if (['COMPLETED', 'CANCELLED'].includes(status)) return;
 
-    const eventSource = new EventSource("/api/sync");
-    eventSource.onmessage = (event) => {
+    let lastCheckedAt = new Date();
+    lastCheckedAt.setSeconds(lastCheckedAt.getSeconds() - 2);
+
+    const poll = async () => {
       try {
-        const data = JSON.parse(event.data);
+        const res = await fetch(`/api/sync?lastCheckedAt=${lastCheckedAt.toISOString()}`);
+        const data = await res.json();
+
         if (data.type === "update" && data.changes) {
-          const myOrder = data.changes.find((o: any) => o.id === id);
-          if (myOrder && myOrder.status !== status) {
-            setStatus(myOrder.status);
+          lastCheckedAt = new Date(data.changes[0].updatedAt);
+          
+          const change = data.changes.find((o: any) => o.id === id);
+          if (change && change.status !== status) {
+            setStatus(change.status);
             
             // Play success sound if it's ready or completed
-            if (myOrder.status === "READY" || myOrder.status === "COMPLETED") {
+            if (change.status === "READY" || change.status === "COMPLETED") {
               playSuccess();
             }
 
@@ -32,7 +38,8 @@ export default function OrderSync({ id, initialStatus }: { id: string, initialSt
       } catch (e) {}
     };
 
-    return () => eventSource.close();
+    const intervalId = setInterval(poll, 10000);
+    return () => clearInterval(intervalId);
   }, [id, status, router]);
 
   return null; // Invisible component

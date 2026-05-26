@@ -31,11 +31,18 @@ export default function KitchenPage() {
     fetchOrders();
     setCurrentPage(1);
 
-    const eventSource = new EventSource("/api/sync");
-    eventSource.onmessage = (event) => {
+    let lastCheckedAt = new Date();
+    // Set back slightly so we don't miss anything that just happened
+    lastCheckedAt.setSeconds(lastCheckedAt.getSeconds() - 2);
+
+    const poll = async () => {
       try {
-        const data = JSON.parse(event.data);
+        const res = await fetch(`/api/sync?lastCheckedAt=${lastCheckedAt.toISOString()}`);
+        const data = await res.json();
+        
         if (data.type === "update" && data.changes) {
+          // Update lastCheckedAt to the newest change
+          lastCheckedAt = new Date(data.changes[0].updatedAt);
           fetchOrders(); // Refresh table
           
           // Sound alert per different status
@@ -48,11 +55,13 @@ export default function KitchenPage() {
           else if (hasReady) playSuccess();
         }
       } catch (e) {
-        console.error("SSE parse error", e);
+        // Silent catch on poll errors
       }
     };
 
-    return () => eventSource.close();
+    const intervalId = setInterval(poll, 10000); // Poll every 10s to save Vercel CPU
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const updateStatus = async (orderId: string, status: string) => {

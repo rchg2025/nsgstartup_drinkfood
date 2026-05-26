@@ -79,22 +79,26 @@ export default function ChatPage() {
     }
   }, [activeConvId]);
 
-  // Set up SSE
+  // Set up polling instead of SSE
   useEffect(() => {
     if (!currentUserId) return;
     
-    const connectSSE = () => {
-      // Find the latest message ID we know about across all conversations
-      let lastId = "";
-      // Wait, we just don't pass lastMessageId so it hooks into the newest
-      const eventSource = new EventSource(`/api/chat/stream`, { withCredentials: true });
-      
-      eventSource.onmessage = (event) => {
-        try {
-          const payload = JSON.parse(event.data);
-          if (payload.type === "messages") {
-            const newMsgs = payload.data;
-            
+    let lastCheckedAt = new Date();
+    // Start tracking from slightly in the past to catch immediate new messages
+    lastCheckedAt.setSeconds(lastCheckedAt.getSeconds() - 2);
+
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/chat/stream?lastMessageDate=${lastCheckedAt.toISOString()}`);
+        const payload = await res.json();
+
+        if (payload.type === "messages") {
+          const newMsgs = payload.data;
+          
+          if (newMsgs && newMsgs.length > 0) {
+            // Update last checked time to the newest message
+            lastCheckedAt = new Date(newMsgs[newMsgs.length - 1].createdAt);
+
             const hasNewOtherMsg = newMsgs.some((m: any) => m.senderId !== currentUserId);
             if (hasNewOtherMsg) {
                import("@/lib/audio").then(audio => audio.playTingTing());
@@ -103,10 +107,16 @@ export default function ChatPage() {
             // Add messages to active window if they belong there
             const msgsForActive = newMsgs.filter((m: any) => m.conversationId === activeConvId);
             if (msgsForActive.length > 0) {
-              setMessages(prev => [...prev, ...msgsForActive]);
+              setMessages(prev => {
+                // Deduplicate before setting
+                const existingIds = new Set(prev.map(m => m.id));
+                const uniqueNewMsgs = msgsForActive.filter((m: any) => !existingIds.has(m.id));
+                return [...prev, ...uniqueNewMsgs];
+              });
               // Also hit the GET endpoint silently in the background to mark them Read
               fetch(`/api/chat/${activeConvId}/messages`);
             }
+            
             // Add unread count to conversations that are not active
             setConversations(prev => prev.map(c => {
               const msgsForC = newMsgs.filter((m: any) => m.conversationId === c.id);
@@ -123,17 +133,12 @@ export default function ChatPage() {
               return c;
             }).sort((a,b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()));
           }
-        } catch (e) {}
-      };
-
-      eventSourceRef.current = eventSource;
+        }
+      } catch (e) {}
     };
 
-    connectSSE();
-
-    return () => {
-      eventSourceRef.current?.close();
-    };
+    const intervalId = setInterval(poll, 3000); // Poll every 3s
+    return () => clearInterval(intervalId);
   }, [currentUserId, activeConvId]);
 
   const handleSendMessage = async (e: React.FormEvent) => {

@@ -40,11 +40,17 @@ export default function DashboardPage() {
 
   // Real-time synchronization
   useEffect(() => {
-    const eventSource = new EventSource("/api/sync");
-    eventSource.onmessage = (event) => {
+    let lastCheckedAt = new Date();
+    lastCheckedAt.setSeconds(lastCheckedAt.getSeconds() - 2);
+
+    const poll = async () => {
       try {
-        const data = JSON.parse(event.data);
+        const res = await fetch(`/api/sync?lastCheckedAt=${lastCheckedAt.toISOString()}`);
+        const data = await res.json();
+
         if (data.type === "update" && data.changes) {
+          lastCheckedAt = new Date(data.changes[0].updatedAt);
+          
           // Play sounds
           const changes: any[] = data.changes || [];
           const hasNewOrder = changes.some((o: any) => o.status === "PENDING");
@@ -66,7 +72,9 @@ export default function DashboardPage() {
         }
       } catch (e) {}
     };
-    return () => eventSource.close();
+
+    const intervalId = setInterval(poll, 15000); // 15s poll is enough for dashboard
+    return () => clearInterval(intervalId);
   }, [role, period]);
 
   const maxRevenue = stats?.last7Days
