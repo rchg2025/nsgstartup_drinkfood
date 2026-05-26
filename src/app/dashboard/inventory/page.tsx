@@ -18,6 +18,13 @@ export default function InventoryPage() {
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Filter and pagination state
+  const [searchText, setSearchText] = useState("");
+  const [filterCategory, setFilterCategory] = useState("ALL");
+  const [filterStock, setFilterStock] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   useEffect(() => {
     fetchInventory();
   }, []);
@@ -85,6 +92,31 @@ export default function InventoryPage() {
     setSubmitting(false);
   };
 
+  // Extract unique categories
+  const categories = Array.from(new Set(products.map(p => p.category?.name).filter(Boolean)));
+
+  // Filter products
+  const filteredProducts = products.filter(p => {
+    const matchSearch = p.name.toLowerCase().includes(searchText.toLowerCase());
+    const matchCategory = filterCategory === "ALL" || p.category?.name === filterCategory;
+    
+    let matchStock = true;
+    if (filterStock === "INSTOCK") matchStock = p.stockQuantity > 0;
+    if (filterStock === "LOWSTOCK") matchStock = p.stockQuantity > 0 && p.stockQuantity <= 10;
+    if (filterStock === "OUTOFSTOCK") matchStock = p.stockQuantity === 0;
+
+    return matchSearch && matchCategory && matchStock;
+  });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchText, filterCategory, filterStock]);
+
   return (
     <div>
       <div className={styles.pageHeader}>
@@ -95,6 +127,41 @@ export default function InventoryPage() {
         <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={handleOpenHistory}>
           Lịch sử nhập hàng
         </button>
+      </div>
+
+      <div className={styles.filterRow}>
+        <div className={styles.searchBox}>
+          <span className={styles.searchIcon}>🔍</span>
+          <input 
+            type="text" 
+            placeholder="Tìm kiếm sản phẩm..." 
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className={styles.searchInput}
+          />
+        </div>
+        <div className={styles.filterGroup}>
+          <select 
+            value={filterCategory} 
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className={styles.filterSelect}
+          >
+            <option value="ALL">Tất cả danh mục</option>
+            {categories.map((c: any) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+          <select 
+            value={filterStock} 
+            onChange={(e) => setFilterStock(e.target.value)}
+            className={styles.filterSelect}
+          >
+            <option value="ALL">Tất cả trạng thái</option>
+            <option value="INSTOCK">Còn hàng</option>
+            <option value="LOWSTOCK">Sắp hết hàng (≤10)</option>
+            <option value="OUTOFSTOCK">Hết hàng</option>
+          </select>
+        </div>
       </div>
 
       <div className={styles.tableContainer}>
@@ -112,12 +179,12 @@ export default function InventoryPage() {
               <tr>
                 <td colSpan={4} style={{ textAlign: "center", padding: "40px" }}>Đang tải dữ liệu...</td>
               </tr>
-            ) : products.length === 0 ? (
+            ) : paginatedProducts.length === 0 ? (
               <tr>
-                <td colSpan={4} style={{ textAlign: "center", padding: "40px" }}>Chưa có sản phẩm nào</td>
+                <td colSpan={4} style={{ textAlign: "center", padding: "40px" }}>Không tìm thấy sản phẩm nào phù hợp</td>
               </tr>
             ) : (
-              products.map((p) => (
+              paginatedProducts.map((p) => (
                 <tr key={p.id} className={styles.productRow}>
                   <td>
                     <div className={styles.productInfo}>
@@ -142,6 +209,29 @@ export default function InventoryPage() {
           </tbody>
         </table>
       </div>
+      
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button 
+            className={styles.pageBtn} 
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+          >
+            ❮ Trước
+          </button>
+          <span className={styles.pageInfo}>
+            Trang {currentPage} / {totalPages}
+          </span>
+          <button 
+            className={styles.pageBtn} 
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+          >
+            Sau ❯
+          </button>
+        </div>
+      )}
 
       {/* Add Stock Modal */}
       {showAddStock && selectedProduct && (
