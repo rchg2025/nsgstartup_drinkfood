@@ -415,7 +415,20 @@ export default function MenuPage() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
                   <div className="form-group">
                     <label className="form-label">Giá HSSV (VNĐ) *</label>
-                    <input className="form-input" type="number" value={form.price || ""} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="35000" />
+                    <input 
+                      className="form-input" 
+                      type="number" 
+                      value={form.price || ""} 
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setForm({
+                          ...form,
+                          price: val,
+                          retailPrice: val ? String(Number(val) + 5000) : ""
+                        });
+                      }} 
+                      placeholder="35000" 
+                    />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Giá Khách lẻ (VNĐ) *</label>
