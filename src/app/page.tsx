@@ -386,7 +386,7 @@ export default function PublicOrderingPage() {
             className={`${styles.catBtn} ${selectedCategory === "all" ? styles.active : ""}`}
             onClick={() => setSelectedCategory("all")}
           >
-            Tất cả
+            Tất cả ({products.length})
           </button>
           {categories.map((cat) => (
             <button
@@ -394,7 +394,7 @@ export default function PublicOrderingPage() {
               className={`${styles.catBtn} ${selectedCategory === cat.id ? styles.active : ""}`}
               onClick={() => setSelectedCategory(cat.id)}
             >
-              <span>{cat.icon}</span> {cat.name}
+              <span>{cat.icon}</span> {cat.name} ({products.filter(p => p.categoryId === cat.id).length})
             </button>
           ))}
         </div>
