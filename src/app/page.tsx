@@ -803,7 +803,7 @@ export default function PublicOrderingPage() {
                 onClick={addToCart}
               >
                 Thêm vào giỏ · {formatCurrency(
-                  (selectedProduct.price +
+                  ((customerType === "RETAIL" ? (selectedProduct.retailPrice || selectedProduct.price) : selectedProduct.price) +
                     (selectedProduct.sizes?.find((s) => s.name === modalSize)?.priceAdd || 0) +
                     toppings.filter((t) => modalToppings.includes(t.id)).reduce((s, t) => s + t.price, 0)) *
                     modalQty
