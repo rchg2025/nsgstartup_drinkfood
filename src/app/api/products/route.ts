@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
         description: true,
         recipe: true,
         price: true,
+        retailPrice: true,
         costPrice: true,
         image: true,
         available: true,
@@ -52,6 +53,7 @@ export async function POST(req: NextRequest) {
         recipe: body.recipe,
         image: body.image,
         price: body.price,
+        retailPrice: body.retailPrice || 0,
         costPrice: body.costPrice || 0,
         categoryId: body.categoryId,
         sizes: body.sizes

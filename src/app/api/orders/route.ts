@@ -161,6 +161,7 @@ export async function POST(req: NextRequest) {
         paymentStatus: body.paymentStatus || "PENDING",
         cashierId: userId,
         customerId: customerId,
+        customerType: body.customerType || "HSSV",
         isPointAwarded: isPointAwarded,
         usedDiscountCodeId: body.usedDiscountCodeId || null,
         note: body.note,

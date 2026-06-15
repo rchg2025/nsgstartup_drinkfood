@@ -117,6 +117,7 @@ model Product {
   recipe      String?
   image       String?
   price       Int
+  retailPrice Int           @default(0)
   costPrice   Int           @default(0)
   categoryId  String
   available   Boolean       @default(true)
@@ -173,6 +174,7 @@ model Order {
   updatedAt      DateTime      @updatedAt
   completedAt    DateTime?
   customerId     String?
+  customerType   String        @default("HSSV")
   isPointAwarded Boolean       @default(false)
 
   cashier        User?          @relation("CashierOrders", fields: [cashierId], references: [id])

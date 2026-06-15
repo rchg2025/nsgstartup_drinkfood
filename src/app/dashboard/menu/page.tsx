@@ -54,7 +54,7 @@ export default function MenuPage() {
   const openCreate = () => {
     setEditItem(null);
     if (activeTab === "products") {
-      setForm({ name: "", price: "", costPrice: "", categoryId: categories[0]?.id || "", description: "", image: "", available: true, sizes: [{ name: "M", priceAdd: 0 }] });
+      setForm({ name: "", price: "", retailPrice: "", costPrice: "", categoryId: categories[0]?.id || "", description: "", image: "", available: true, sizes: [{ name: "M", priceAdd: 0 }] });
     } else if (activeTab === "categories") {
       setForm({ name: "", icon: "🍹", sortOrder: 0, active: true });
     } else {
@@ -66,7 +66,7 @@ export default function MenuPage() {
   const openEdit = (item: any) => {
     setEditItem(item);
     if (activeTab === "products") {
-      setForm({ ...item, price: item.price, costPrice: item.costPrice || 0, categoryId: item.categoryId, sizes: item.sizes || [] });
+      setForm({ ...item, price: item.price, retailPrice: item.retailPrice || item.price || 0, costPrice: item.costPrice || 0, categoryId: item.categoryId, sizes: item.sizes || [] });
     } else {
       setForm({ ...item });
     }
@@ -82,7 +82,7 @@ export default function MenuPage() {
 
       if (activeTab === "products") {
         url = isEdit ? `/api/products/${editItem.id}` : "/api/products";
-        const body = { ...form, price: Number(form.price), costPrice: Number(form.costPrice || 0) };
+        const body = { ...form, price: Number(form.price), retailPrice: Number(form.retailPrice || form.price || 0), costPrice: Number(form.costPrice || 0) };
         if (form.sizes) body.sizes = form.sizes.map((s: any) => ({ ...s, priceAdd: Number(s.priceAdd) }));
         const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
         if (!res.ok) throw new Error();
@@ -252,7 +252,8 @@ export default function MenuPage() {
                 </div>
                 <div className={styles.productFooter}>
                   <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span className={styles.productPrice}>{formatCurrency(product.price)}</span>
+                    <span className={styles.productPrice}>HSSV: {formatCurrency(product.price)}</span>
+                    <span className={styles.productPrice} style={{ color: "var(--orange)", fontSize: 14 }}>Lẻ: {formatCurrency(product.retailPrice || product.price)}</span>
                     <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Gốc: {formatCurrency(product.costPrice || 0)}</span>
                   </div>
                   <div style={{ display: "flex", gap: 6 }}>
@@ -411,10 +412,14 @@ export default function MenuPage() {
                     {categories.map((c) => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
                   </select>
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
                   <div className="form-group">
-                    <label className="form-label">Giá bán (VNĐ) *</label>
+                    <label className="form-label">Giá HSSV (VNĐ) *</label>
                     <input className="form-input" type="number" value={form.price || ""} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="35000" />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Giá Khách lẻ (VNĐ) *</label>
+                    <input className="form-input" type="number" value={form.retailPrice || ""} onChange={(e) => setForm({ ...form, retailPrice: e.target.value })} placeholder="40000" />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Giá gốc (VNĐ) *</label>

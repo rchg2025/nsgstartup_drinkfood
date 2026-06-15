@@ -8,6 +8,7 @@ interface Product {
   id: string;
   name: string;
   price: number;
+  retailPrice?: number;
   image?: string;
   available: boolean;
   category: { id: string; name: string; icon: string };
@@ -48,6 +49,7 @@ export default function POSPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [customerType, setCustomerType] = useState("HSSV");
   const [discount, setDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [orderNote, setOrderNote] = useState("");
@@ -137,7 +139,8 @@ export default function POSPage() {
     const sizePrice = size?.priceAdd || 0;
     const selectedToppingObjs = toppings.filter((t) => modalToppings.includes(t.id));
     const toppingTotal = selectedToppingObjs.reduce((sum, t) => sum + t.price, 0);
-    const unitPrice = selectedProduct.price + sizePrice + toppingTotal;
+    const basePrice = customerType === "RETAIL" ? (selectedProduct.retailPrice || selectedProduct.price) : selectedProduct.price;
+    const unitPrice = basePrice + sizePrice + toppingTotal;
     const newItem: CartItem = {
       id: `${selectedProduct.id}-${Date.now()}`,
       product: selectedProduct,
@@ -152,6 +155,19 @@ export default function POSPage() {
     setCart((prev) => [...prev, newItem]);
     setSelectedProduct(null);
   };
+
+  useEffect(() => {
+    setCart(prev => prev.map(item => {
+      const basePrice = customerType === "RETAIL" ? (item.product.retailPrice || item.product.price) : item.product.price;
+      const toppingTotal = item.toppings.reduce((sum, t) => sum + t.price, 0);
+      const newUnitPrice = basePrice + item.sizePrice + toppingTotal;
+      return {
+        ...item,
+        unitPrice: newUnitPrice,
+        totalPrice: newUnitPrice * item.quantity
+      };
+    }));
+  }, [customerType]);
 
   const updateQty = (id: string, delta: number) => {
     setCart((prev) =>
@@ -218,6 +234,7 @@ export default function POSPage() {
         body: JSON.stringify({
           customerName: customerName || null,
           customerPhone: customerPhone || null,
+          customerType: customerType,
           totalAmount: subtotal,
           discount: calculatedDiscount,
           finalAmount,
@@ -365,6 +382,24 @@ export default function POSPage() {
             value={customerPhone}
             onChange={(e) => setCustomerPhone(e.target.value)}
           />
+        </div>
+
+        {/* Customer Type Selector */}
+        <div style={{ display: "flex", gap: "8px", padding: "0 24px", marginBottom: "16px" }}>
+          <button
+            className={`${styles.payMethod} ${customerType === "HSSV" ? styles.payActive : ""}`}
+            style={{ flex: 1, padding: "10px", fontSize: "14px", borderRadius: "8px", minHeight: "40px", border: customerType === "HSSV" ? "2px solid var(--purple)" : "1px solid var(--border)", background: customerType === "HSSV" ? "rgba(102, 51, 153, 0.05)" : "white" }}
+            onClick={() => setCustomerType("HSSV")}
+          >
+            🎓 Giá HSSV
+          </button>
+          <button
+            className={`${styles.payMethod} ${customerType === "RETAIL" ? styles.payActive : ""}`}
+            style={{ flex: 1, padding: "10px", fontSize: "14px", borderRadius: "8px", minHeight: "40px", border: customerType === "RETAIL" ? "2px solid var(--orange)" : "1px solid var(--border)", background: customerType === "RETAIL" ? "rgba(255, 107, 53, 0.05)" : "white" }}
+            onClick={() => setCustomerType("RETAIL")}
+          >
+            🛍️ Giá Khách lẻ
+          </button>
         </div>
 
         {/* Cart Items */}
