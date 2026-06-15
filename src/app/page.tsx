@@ -520,23 +520,7 @@ export default function PublicOrderingPage() {
           />
         </div>
 
-        {/* Customer Type Selector */}
-        <div style={{ display: "flex", gap: "8px", padding: "0 24px", marginBottom: "16px" }}>
-          <button
-            className={`${styles.payMethod} ${customerType === "HSSV" ? styles.payActive : ""}`}
-            style={{ flex: 1, padding: "10px", fontSize: "14px", borderRadius: "8px", minHeight: "40px", border: customerType === "HSSV" ? "2px solid var(--purple)" : "1px solid var(--border)", background: customerType === "HSSV" ? "rgba(102, 51, 153, 0.05)" : "white" }}
-            onClick={() => setCustomerType("HSSV")}
-          >
-            🎓 Giá HSSV
-          </button>
-          <button
-            className={`${styles.payMethod} ${customerType === "RETAIL" ? styles.payActive : ""}`}
-            style={{ flex: 1, padding: "10px", fontSize: "14px", borderRadius: "8px", minHeight: "40px", border: customerType === "RETAIL" ? "2px solid var(--orange)" : "1px solid var(--border)", background: customerType === "RETAIL" ? "rgba(255, 107, 53, 0.05)" : "white" }}
-            onClick={() => setCustomerType("RETAIL")}
-          >
-            🛍️ Giá Khách lẻ
-          </button>
-        </div>
+
 
         {/* Cart Items & Payment Info */}
         <div className={styles.cartItems}>
