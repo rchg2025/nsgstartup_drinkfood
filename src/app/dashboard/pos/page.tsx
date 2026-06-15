@@ -49,7 +49,9 @@ export default function POSPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-  const [customerType, setCustomerType] = useState("HSSV");
+  const [customerType, setCustomerType] = useState<"HSSV" | "RETAIL" | null>(null);
+  const [showCustomerTypeModal, setShowCustomerTypeModal] = useState(false);
+  const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
   const [discount, setDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [orderNote, setOrderNote] = useState("");
@@ -126,11 +128,29 @@ export default function POSPage() {
   });
 
   const openProductModal = (product: Product) => {
+    if (cart.length === 0 && !customerType) {
+      setPendingProduct(product);
+      setShowCustomerTypeModal(true);
+      return;
+    }
+    openModalForProduct(product);
+  };
+
+  const openModalForProduct = (product: Product) => {
     setSelectedProduct(product);
     setModalSize(product.sizes[0]?.name || "");
     setModalToppings([]);
     setModalNote("");
     setModalQty(1);
+  };
+
+  const selectCustomerTypeAndContinue = (type: "HSSV" | "RETAIL") => {
+    setCustomerType(type);
+    setShowCustomerTypeModal(false);
+    if (pendingProduct) {
+      openModalForProduct(pendingProduct);
+      setPendingProduct(null);
+    }
   };
 
   const addToCart = () => {
@@ -262,6 +282,7 @@ export default function POSPage() {
         setCart([]);
         setCustomerName("");
         setCustomerPhone("");
+        setCustomerType(null);
         setDiscount(0);
         setDiscountCodeInput("");
         setAppliedDiscount(null);
@@ -556,6 +577,37 @@ export default function POSPage() {
       {/* Overlay for Cart */}
       {isCartOpen && (
         <div className="modal-overlay" onClick={() => setIsCartOpen(false)} style={{ zIndex: 1500 }}></div>
+      )}
+
+      {/* ===== Customer Type Selection Modal ===== */}
+      {showCustomerTypeModal && (
+        <div className="modal-overlay" style={{ zIndex: 350 }} onClick={() => setShowCustomerTypeModal(false)}>
+          <div className="modal" style={{ maxWidth: 400, textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header" style={{ marginBottom: "20px" }}>
+              <h2 className="modal-title" style={{ fontSize: "20px", fontWeight: 800 }}>Vui lòng chọn loại giá</h2>
+              <button className="modal-close" onClick={() => setShowCustomerTypeModal(false)}>✕</button>
+            </div>
+            <p style={{ color: "#5c6275", marginBottom: 24, fontSize: 15 }}>
+              Bạn đang tạo đơn hàng mới. Vui lòng chọn loại giá áp dụng cho đơn hàng này.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <button
+                className={styles.submitBtn}
+                style={{ background: "linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)", boxShadow: "0 4px 10px rgba(139, 92, 246, 0.3)" }}
+                onClick={() => selectCustomerTypeAndContinue("HSSV")}
+              >
+                🎓 Giá Học Sinh / Sinh Viên
+              </button>
+              <button
+                className={styles.submitBtn}
+                style={{ background: "linear-gradient(135deg, #f97316 0%, #fb923c 100%)", boxShadow: "0 4px 10px rgba(249, 115, 22, 0.3)" }}
+                onClick={() => selectCustomerTypeAndContinue("RETAIL")}
+              >
+                🛍️ Giá Khách Lẻ
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ===== Product Detail Modal ===== */}
