@@ -109,20 +109,14 @@ export default function PublicOrderingPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [catRes, prodRes, topRes, setRes, campRes] = await Promise.all([
-          fetch("/api/categories", { next: { revalidate: 60 } }),
-          fetch("/api/products?available=true", { next: { revalidate: 60 } }),
-          fetch("/api/toppings", { next: { revalidate: 60 } }),
-          fetch("/api/settings", { next: { revalidate: 60 } }),
-          fetch("/api/public/campaigns", { next: { revalidate: 60 } }),
-        ]);
-        setCategories(await catRes.json());
-        setProducts(await prodRes.json());
-        setToppings(await topRes.json());
-        setBankSettings(await setRes.json());
+        const res = await fetch("/api/public/menu-data", { next: { revalidate: 60 } });
+        const data = await res.json();
         
-        const campaignsData = await campRes.json();
-        if (Array.isArray(campaignsData)) setCampaigns(campaignsData);
+        setCategories(data.categories || []);
+        setProducts(data.products || []);
+        setToppings(data.toppings || []);
+        setBankSettings(data.settings || {});
+        if (Array.isArray(data.campaigns)) setCampaigns(data.campaigns);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -362,7 +356,7 @@ export default function PublicOrderingPage() {
       {/* ===== LEFT: Menu Panel ===== */}
       <div className={styles.menuPanel}>
         <div className={styles.menuHeader}>
-          <div className={styles.brandName}>
+          <div className={styles.brandName} style={{ cursor: "pointer" }} onClick={() => window.location.reload()}>
             <div className={styles.brandIcon}>🍹</div>
             <span className={styles.brandNameText}>NSGSTARTUP POS</span>
           </div>
@@ -394,7 +388,7 @@ export default function PublicOrderingPage() {
               className={`${styles.catBtn} ${selectedCategory === cat.id ? styles.active : ""}`}
               onClick={() => setSelectedCategory(cat.id)}
             >
-              <span>{cat.icon}</span> {cat.name} ({products.filter(p => p.categoryId === cat.id).length})
+              <span>{cat.icon}</span> {cat.name} ({products.filter(p => p.category.id === cat.id).length})
             </button>
           ))}
         </div>

@@ -76,16 +76,13 @@ export default function POSPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [catRes, prodRes, topRes, setRes] = await Promise.all([
-        fetch("/api/categories"),
-        fetch("/api/products?available=true"),
-        fetch("/api/toppings"),
-        fetch("/api/settings"),
-      ]);
-      setCategories(await catRes.json());
-      setProducts(await prodRes.json());
-      setToppings(await topRes.json());
-      setBankSettings(await setRes.json());
+      try {
+        const res = await fetch("/api/public/menu-data");
+        const data = await res.json();
+        setCategories(data.categories || []);
+        setProducts(data.products || []);
+        setToppings(data.toppings || []);
+        setBankSettings(data.settings || {});
 
       const params = new URLSearchParams(window.location.search);
       const editId = params.get("editOrderId");
@@ -116,6 +113,9 @@ export default function POSPage() {
         } catch (e) {
           console.error("Failed to load edit order", e);
         }
+      }
+      } catch (error) {
+        console.error("Error fetching menu data", error);
       }
     };
     fetchData();
@@ -304,7 +304,7 @@ export default function POSPage() {
       <div className={styles.menuPanel}>
         {/* Header */}
         <div className={styles.menuHeader}>
-          <div className={styles.brandName}>
+          <div className={styles.brandName} style={{ cursor: "pointer" }} onClick={() => window.location.reload()}>
             <div className={styles.brandIcon}>☕</div>
             NSG STARTUP
           </div>
@@ -321,7 +321,7 @@ export default function POSPage() {
                 className={`${styles.catBtn} ${selectedCategory === cat.id ? styles.active : ""}`}
                 onClick={() => setSelectedCategory(cat.id)}
               >
-                <span>{cat.icon}</span> {cat.name} ({products.filter(p => p.categoryId === cat.id).length})
+                <span>{cat.icon}</span> {cat.name} ({products.filter(p => p.category.id === cat.id).length})
               </button>
             ))}
           </div>
