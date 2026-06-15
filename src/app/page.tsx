@@ -667,26 +667,26 @@ export default function PublicOrderingPage() {
         <div className="modal-overlay" style={{ zIndex: 350 }} onClick={() => setShowCustomerTypeModal(false)}>
           <div className="modal" style={{ maxWidth: 400, textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header" style={{ marginBottom: "20px" }}>
-              <h2 className="modal-title" style={{ fontSize: "20px", fontWeight: 800 }}>Vui lòng chọn loại giá</h2>
+              <h2 className="modal-title" style={{ fontSize: "20px", fontWeight: 800 }}>Vui lòng chọn loại khách hàng</h2>
               <button className="modal-close" onClick={() => setShowCustomerTypeModal(false)}>✕</button>
             </div>
             <p style={{ color: "#5c6275", marginBottom: 24, fontSize: 15 }}>
-              Bạn đang tạo đơn hàng mới. Vui lòng chọn loại giá áp dụng cho đơn hàng này.
+              Bạn đang tạo đơn hàng mới. Vui lòng chọn đối tượng khách hàng để áp dụng mức giá cho đơn hàng này.
             </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", flexDirection: "row", gap: 12 }}>
               <button
                 className={styles.submitBtn}
-                style={{ background: "linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)", boxShadow: "0 4px 10px rgba(139, 92, 246, 0.3)" }}
+                style={{ flex: 1, background: "linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)", boxShadow: "0 4px 10px rgba(139, 92, 246, 0.3)", padding: "12px 8px", fontSize: "14px" }}
                 onClick={() => selectCustomerTypeAndContinue("HSSV")}
               >
-                🎓 Giá Học Sinh / Sinh Viên
+                🎓 HSSV
               </button>
               <button
                 className={styles.submitBtn}
-                style={{ background: "linear-gradient(135deg, #f97316 0%, #fb923c 100%)", boxShadow: "0 4px 10px rgba(249, 115, 22, 0.3)" }}
+                style={{ flex: 1, background: "linear-gradient(135deg, #f97316 0%, #fb923c 100%)", boxShadow: "0 4px 10px rgba(249, 115, 22, 0.3)", padding: "12px 8px", fontSize: "14px" }}
                 onClick={() => selectCustomerTypeAndContinue("RETAIL")}
               >
-                🛍️ Giá Khách Lẻ
+                🛍️ Khách hàng
               </button>
             </div>
           </div>
