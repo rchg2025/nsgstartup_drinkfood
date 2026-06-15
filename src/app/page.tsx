@@ -431,7 +431,11 @@ export default function PublicOrderingPage() {
               </div>
               <div className={styles.productInfo}>
                 <div className={styles.productName}>{product.name}</div>
-                <div className={styles.productPrice}>{formatCurrency(product.price)}</div>
+                <div className={styles.productPrice}>
+                  {customerType 
+                    ? formatCurrency(customerType === "RETAIL" ? (product.retailPrice || product.price) : product.price) 
+                    : ""}
+                </div>
               </div>
               <div className={styles.addBtn}>+</div>
             </div>
