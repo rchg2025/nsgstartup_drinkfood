@@ -49,7 +49,7 @@ export default function PublicOrderingPage() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerType, setCustomerType] = useState<"HSSV" | "RETAIL" | null>(null); // HSSV or RETAIL
-  const [showCustomerTypeModal, setShowCustomerTypeModal] = useState(false);
+  const [showCustomerTypeModal, setShowCustomerTypeModal] = useState(true);
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [orderNote, setOrderNote] = useState("");
@@ -664,11 +664,11 @@ export default function PublicOrderingPage() {
 
       {/* ===== Customer Type Selection Modal ===== */}
       {showCustomerTypeModal && (
-        <div className="modal-overlay" style={{ zIndex: 350 }} onClick={() => setShowCustomerTypeModal(false)}>
+        <div className="modal-overlay" style={{ zIndex: 350 }} onClick={() => !customerType ? null : setShowCustomerTypeModal(false)}>
           <div className="modal" style={{ maxWidth: 400, textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header" style={{ marginBottom: "20px" }}>
+            <div className="modal-header" style={{ marginBottom: "20px", justifyContent: "center" }}>
               <h2 className="modal-title" style={{ fontSize: "20px", fontWeight: 800 }}>Vui lòng chọn loại khách hàng</h2>
-              <button className="modal-close" onClick={() => setShowCustomerTypeModal(false)}>✕</button>
+              {customerType && <button className="modal-close" onClick={() => setShowCustomerTypeModal(false)}>✕</button>}
             </div>
             <p style={{ color: "#5c6275", marginBottom: 24, fontSize: 15 }}>
               Bạn đang tạo đơn hàng mới. Vui lòng chọn đối tượng khách hàng để áp dụng mức giá cho đơn hàng này.
