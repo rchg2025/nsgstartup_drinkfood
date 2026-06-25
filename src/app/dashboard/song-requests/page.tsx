@@ -8,6 +8,8 @@ export default function SongRequestsPage() {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
 
   const fetchRequests = async () => {
     try {
@@ -41,10 +43,14 @@ export default function SongRequestsPage() {
     setProcessingId(null);
   };
 
-  const handleReject = (id: string) => {
-    const reason = window.prompt("Vui lòng nhập lý do từ chối (ví dụ: Không thuộc bài, Hết giờ...):");
-    if (reason === null) return; // Cancel
-    updateStatus(id, "REJECTED", reason);
+  const confirmReject = (id: string) => {
+    if (!rejectReason.trim()) {
+      alert("Vui lòng nhập lý do từ chối");
+      return;
+    }
+    updateStatus(id, "REJECTED", rejectReason);
+    setRejectingId(null);
+    setRejectReason("");
   };
 
   const submitTip = async (id: string) => {
@@ -151,24 +157,55 @@ export default function SongRequestsPage() {
                     </td>
                     <td style={{ padding: "14px 16px", textAlign: "center" }}>
                       {req.status === "PENDING" && (
-                        <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
-                          <button 
-                            className="btn" 
-                            style={{ background: "#10b981", color: "#fff", padding: "6px 10px", fontSize: 12, minWidth: 0, flex: 1 }}
-                            onClick={() => updateStatus(req.id, "ACCEPTED")}
-                            disabled={processingId === req.id}
-                          >
-                            ✓ Đồng ý
-                          </button>
-                          <button 
-                            className="btn" 
-                            style={{ background: "#ef4444", color: "#fff", padding: "6px 10px", fontSize: 12, minWidth: 0, flex: 1 }}
-                            onClick={() => handleReject(req.id)}
-                            disabled={processingId === req.id}
-                          >
-                            ✕ Từ chối
-                          </button>
-                        </div>
+                        rejectingId === req.id ? (
+                          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                            <input 
+                              type="text" 
+                              placeholder="Lý do từ chối..." 
+                              value={rejectReason}
+                              onChange={(e) => setRejectReason(e.target.value)}
+                              style={{ padding: "6px 10px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: 12, outline: "none" }}
+                              autoFocus
+                            />
+                            <div style={{ display: "flex", gap: 6 }}>
+                              <button 
+                                className="btn" 
+                                style={{ background: "#ef4444", color: "#fff", padding: "4px 8px", fontSize: 12, minWidth: 0, flex: 1 }}
+                                onClick={() => confirmReject(req.id)}
+                                disabled={processingId === req.id}
+                              >
+                                Xác nhận
+                              </button>
+                              <button 
+                                className="btn" 
+                                style={{ background: "#94a3b8", color: "#fff", padding: "4px 8px", fontSize: 12, minWidth: 0, flex: 1 }}
+                                onClick={() => { setRejectingId(null); setRejectReason(""); }}
+                                disabled={processingId === req.id}
+                              >
+                                Hủy
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+                            <button 
+                              className="btn" 
+                              style={{ background: "#10b981", color: "#fff", padding: "6px 10px", fontSize: 12, minWidth: 0, flex: 1 }}
+                              onClick={() => updateStatus(req.id, "ACCEPTED")}
+                              disabled={processingId === req.id}
+                            >
+                              ✓ Đồng ý
+                            </button>
+                            <button 
+                              className="btn" 
+                              style={{ background: "#ef4444", color: "#fff", padding: "6px 10px", fontSize: 12, minWidth: 0, flex: 1 }}
+                              onClick={() => { setRejectingId(req.id); setRejectReason(""); }}
+                              disabled={processingId === req.id}
+                            >
+                              ✕ Từ chối
+                            </button>
+                          </div>
+                        )
                       )}
                       {req.status === "ACCEPTED" && (
                         <button 
