@@ -4,7 +4,7 @@ import { formatDate } from "@/lib/utils";
 import styles from "./staff.module.css";
 
 const ROLES = ["ADMIN", "CASHIER", "BARISTA", "BAND"];
-const ROLE_LABELS: Record<string, string> = { ADMIN: "Quản trị viên", CASHIER: "Thu ngân", BARISTA: "Pha chế", BAND: "Band nhạc" };
+const ROLE_LABELS: Record<string, string> = { ADMIN: "Quản trị viên", CASHIER: "Thu ngân", BARISTA: "Pha chế", BAND: "Bandmusic" };
 
 export default function StaffPage() {
   const [users, setUsers] = useState<any[]>([]);
