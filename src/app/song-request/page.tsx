@@ -144,11 +144,22 @@ export default function SongRequestPage() {
         </div>
         <div className={styles.headerActions} style={{ display: "flex", gap: "12px", alignItems: "center" }}>
           <button 
-            style={{ padding: "8px 16px", borderRadius: 20, fontSize: 14, fontWeight: 700, color: "#fff", border: "none", background: "var(--primary)", cursor: "pointer" }}
+            className={styles.sizeBtn} 
+            style={{ padding: "6px 12px", borderRadius: 20, fontSize: 13, fontWeight: 700, color: "var(--primary)", border: "1px solid var(--primary)", background: "rgba(239, 68, 68, 0.05)" }}
             onClick={() => window.location.href = '/'}
           >
-            🏠 Trang chủ
+            🥤 Đặt nước
           </button>
+          <button 
+            className={styles.sizeBtn} 
+            style={{ padding: "6px 12px", borderRadius: 20, fontSize: 13, fontWeight: 700, color: "var(--purple)", border: "1px solid var(--purple)", background: "rgba(102, 51, 153, 0.05)" }}
+            onClick={() => window.location.href = '/?action=points'}
+          >
+            🎁 Tra Điểm
+          </button>
+          <a href="/login" style={{ fontSize: "14px", fontWeight: 600, color: "#8c93a1", textDecoration: "none", display: "flex", alignItems: "center" }} title="Đăng nhập quản trị">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          </a>
         </div>
       </div>
 

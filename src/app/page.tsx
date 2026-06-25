@@ -140,6 +140,15 @@ export default function PublicOrderingPage() {
   const [pageLoading, setPageLoading] = useState(true);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("action") === "points") {
+        setIsPointModalOpen(true);
+        // Clean up URL without reloading
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+
     const fetchData = async () => {
       try {
         const res = await fetch("/api/public/menu-data", { next: { revalidate: 60 } });
