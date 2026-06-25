@@ -9,7 +9,7 @@ export default auth((req) => {
   const isAuthenticated = !!req.auth;
 
   // Public routes
-  if (pathname === "/" || pathname === "/login" || pathname.startsWith("/order-status")) {
+  if (pathname === "/" || pathname === "/login" || pathname.startsWith("/order-status") || pathname === "/song-request") {
     if (isAuthenticated && pathname === "/login") {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }

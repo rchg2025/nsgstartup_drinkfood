@@ -281,18 +281,6 @@ export default function SongRequestPage() {
                         <div style={{ marginTop: 20, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
                           <button 
                             type="button"
-                            onClick={() => {
-                              const amount = srTipAmount === "other" ? srOtherTipAmount : srTipAmount;
-                              const addInfo = encodeURIComponent(`Tip cho Band ${srRequester}`);
-                              const dlUrl = `https://dl.vietqr.io/pay?ba=${bankSettings.band_bank_account}@${bankSettings.band_bank_code}&am=${amount}&tn=${addInfo}`;
-                              window.open(dlUrl, "_blank");
-                            }}
-                            style={{ padding: "12px 20px", borderRadius: 10, background: "#10b981", color: "white", fontWeight: 700, fontSize: 15, border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
-                          >
-                            💸 Chuyển ngay
-                          </button>
-                          <button 
-                            type="button"
                             onClick={async () => {
                               const url = `https://img.vietqr.io/image/${bankSettings.band_bank_code}-${bankSettings.band_bank_account}-compact2.png?amount=${srTipAmount === "other" ? srOtherTipAmount : srTipAmount}&addInfo=Tip cho Band ${srRequester}`;
                               try {
