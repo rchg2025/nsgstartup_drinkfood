@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { formatDate } from "@/lib/utils";
 import styles from "./staff.module.css";
 
-const ROLES = ["ADMIN", "CASHIER", "BARISTA"];
-const ROLE_LABELS: Record<string, string> = { ADMIN: "Quản trị viên", CASHIER: "Thu ngân", BARISTA: "Pha chế" };
+const ROLES = ["ADMIN", "CASHIER", "BARISTA", "BAND"];
+const ROLE_LABELS: Record<string, string> = { ADMIN: "Quản trị viên", CASHIER: "Thu ngân", BARISTA: "Pha chế", BAND: "Band nhạc" };
 
 export default function StaffPage() {
   const [users, setUsers] = useState<any[]>([]);
