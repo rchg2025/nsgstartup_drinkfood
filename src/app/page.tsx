@@ -1143,19 +1143,40 @@ export default function PublicOrderingPage() {
                  ) : srList.length === 0 ? (
                    <div style={{ textAlign: "center", padding: 40, color: "#64748b" }}>Chưa có bài hát nào được yêu cầu.</div>
                  ) : (
-                   <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                     {srList.map(req => (
-                       <div key={req.id} style={{ padding: 12, borderRadius: 8, background: "#fff", border: "1px solid #e2e8f0", borderLeft: `4px solid ${req.status === 'ACCEPTED' ? '#10b981' : req.status === 'COMPLETED' ? '#3b82f6' : req.status === 'REJECTED' ? '#ef4444' : '#f59e0b'}` }}>
-                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
-                           <strong style={{ fontSize: 15, color: "#1e293b", flex: 1 }}>{req.songName || "Không rõ bài hát"}</strong>
-                           <span style={{ fontSize: 12, fontWeight: 700, padding: "2px 8px", borderRadius: 12, background: req.status === "ACCEPTED" ? "rgba(16,185,129,0.1)" : req.status === "COMPLETED" ? "rgba(59,130,246,0.1)" : req.status === "REJECTED" ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)", color: req.status === "ACCEPTED" ? "#10b981" : req.status === "COMPLETED" ? "#3b82f6" : req.status === "REJECTED" ? "#ef4444" : "#f59e0b", whiteSpace: "nowrap", marginLeft: 8 }}>
-                             {req.status === "ACCEPTED" ? "Sắp diễn" : req.status === "COMPLETED" ? "Đã diễn" : req.status === "REJECTED" ? "Từ chối" : "Đang chờ"}
-                           </span>
-                         </div>
-                         <div style={{ fontSize: 13, color: "#64748b", marginBottom: 4 }}>👤 {req.requesterName || "Khách ẩn danh"} • {new Date(req.createdAt).toLocaleTimeString("vi-VN", {hour: '2-digit', minute:'2-digit'})}</div>
-                         {req.message && <div style={{ fontSize: 14, color: "#334155", fontStyle: "italic", background: "#f8fafc", padding: 8, borderRadius: 6, marginTop: 8 }}>"{req.message}"</div>}
-                       </div>
-                     ))}
+                   <div style={{ overflowX: "auto", borderRadius: 8, border: "1px solid #e2e8f0" }}>
+                     <table style={{ width: "100%", minWidth: 600, borderCollapse: "collapse", textAlign: "left", fontSize: 14 }}>
+                       <thead>
+                         <tr style={{ background: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
+                           <th style={{ padding: "12px 16px", color: "#475569", fontWeight: 600, width: 60, textAlign: "center" }}>STT</th>
+                           <th style={{ padding: "12px 16px", color: "#475569", fontWeight: 600, width: "25%" }}>Bài hát</th>
+                           <th style={{ padding: "12px 16px", color: "#475569", fontWeight: 600, width: "20%" }}>Khách hàng</th>
+                           <th style={{ padding: "12px 16px", color: "#475569", fontWeight: 600 }}>Cảm nghĩ</th>
+                           <th style={{ padding: "12px 16px", color: "#475569", fontWeight: 600, width: 100, textAlign: "center" }}>Trạng thái</th>
+                         </tr>
+                       </thead>
+                       <tbody>
+                         {srList.map((req, index) => (
+                           <tr key={req.id} style={{ borderBottom: "1px solid #e2e8f0", background: "#fff" }}>
+                             <td style={{ padding: "12px 16px", color: "#1e293b", fontWeight: 600, textAlign: "center" }}>{index + 1}</td>
+                             <td style={{ padding: "12px 16px", color: "#1e293b", fontWeight: 600 }}>{req.songName || "Không rõ"}</td>
+                             <td style={{ padding: "12px 16px", color: "#64748b" }}>
+                               <div style={{ display: "flex", alignItems: "center", gap: 4, fontWeight: 500 }}>
+                                 👤 {req.requesterName || "Khách ẩn danh"}
+                               </div>
+                               <div style={{ fontSize: 12, marginTop: 4 }}>{new Date(req.createdAt).toLocaleTimeString("vi-VN", {hour: '2-digit', minute:'2-digit'})}</div>
+                             </td>
+                             <td style={{ padding: "12px 16px", color: "#334155", fontStyle: req.message ? "italic" : "normal" }}>
+                               {req.message ? `"${req.message}"` : "-"}
+                             </td>
+                             <td style={{ padding: "12px 16px", textAlign: "center" }}>
+                               <span style={{ fontSize: 12, fontWeight: 700, padding: "4px 10px", borderRadius: 12, background: req.status === "ACCEPTED" ? "rgba(16,185,129,0.1)" : req.status === "COMPLETED" ? "rgba(59,130,246,0.1)" : req.status === "REJECTED" ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)", color: req.status === "ACCEPTED" ? "#10b981" : req.status === "COMPLETED" ? "#3b82f6" : req.status === "REJECTED" ? "#ef4444" : "#f59e0b", whiteSpace: "nowrap" }}>
+                                 {req.status === "ACCEPTED" ? "Sắp diễn" : req.status === "COMPLETED" ? "Đã diễn" : req.status === "REJECTED" ? "Từ chối" : "Đang chờ"}
+                               </span>
+                             </td>
+                           </tr>
+                         ))}
+                       </tbody>
+                     </table>
                    </div>
                  )}
                </div>
