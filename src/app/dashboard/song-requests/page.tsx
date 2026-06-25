@@ -26,7 +26,7 @@ export default function SongRequestsPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const updateStatus = async (id: string, status: "ACCEPTED" | "REJECTED") => {
+  const updateStatus = async (id: string, status: "ACCEPTED" | "REJECTED" | "COMPLETED") => {
     setProcessingId(id);
     try {
       await fetch(`/api/song-requests/${id}`, {
@@ -81,7 +81,7 @@ export default function SongRequestsPage() {
           </div>
         ) : (
           requests.map(req => (
-            <div key={req.id} style={{ background: "#fff", padding: 20, borderRadius: 12, boxShadow: "0 2px 10px rgba(0,0,0,0.05)", borderLeft: `4px solid ${req.status === 'ACCEPTED' ? '#10b981' : req.status === 'REJECTED' ? '#ef4444' : '#f59e0b'}` }}>
+            <div key={req.id} style={{ background: "#fff", padding: 20, borderRadius: 12, boxShadow: "0 2px 10px rgba(0,0,0,0.05)", borderLeft: `4px solid ${req.status === 'ACCEPTED' ? '#10b981' : req.status === 'COMPLETED' ? '#3b82f6' : req.status === 'REJECTED' ? '#ef4444' : '#f59e0b'}` }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                 <div>
                   <div style={{ fontWeight: 700, fontSize: 18, color: "#1e293b", marginBottom: 4 }}>
@@ -113,16 +113,28 @@ export default function SongRequestsPage() {
                     </div>
                   )}
                   {req.status !== "PENDING" && (
-                    <span style={{ 
-                      padding: "4px 12px", 
-                      borderRadius: 20, 
-                      fontSize: 12, 
-                      fontWeight: 700,
-                      background: req.status === "ACCEPTED" ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)",
-                      color: req.status === "ACCEPTED" ? "#10b981" : "#ef4444"
-                    }}>
-                      {req.status === "ACCEPTED" ? "Đã đồng ý" : "Đã từ chối"}
-                    </span>
+                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                      <span style={{ 
+                        padding: "4px 12px", 
+                        borderRadius: 20, 
+                        fontSize: 12, 
+                        fontWeight: 700,
+                        background: req.status === "ACCEPTED" ? "rgba(16,185,129,0.1)" : req.status === "COMPLETED" ? "rgba(59,130,246,0.1)" : "rgba(239,68,68,0.1)",
+                        color: req.status === "ACCEPTED" ? "#10b981" : req.status === "COMPLETED" ? "#3b82f6" : "#ef4444"
+                      }}>
+                        {req.status === "ACCEPTED" ? "Đã đồng ý" : req.status === "COMPLETED" ? "Đã biểu diễn" : "Đã từ chối"}
+                      </span>
+                      {req.status === "ACCEPTED" && (
+                        <button 
+                          className="btn btn-primary" 
+                          style={{ padding: "4px 12px", fontSize: 12, background: "#3b82f6", borderColor: "#3b82f6" }}
+                          onClick={() => updateStatus(req.id, "COMPLETED")}
+                          disabled={processingId === req.id}
+                        >
+                          Hoàn thành
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>

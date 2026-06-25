@@ -22,6 +22,7 @@ const navItems = [
   { href: "/dashboard/settings", icon: "⚙️", label: "Cấu hình", roles: ["ADMIN"] },
   { href: "/dashboard/chat", icon: "💬", label: "Trò chuyện", roles: ["ADMIN", "CASHIER", "BARISTA"] },
   { href: "/dashboard/song-requests", icon: "🎵", label: "Yêu cầu bài hát", roles: ["ADMIN", "BAND"] },
+  { href: "/dashboard/confirmed-tips", icon: "💵", label: "Tiền Tip đã nhận", roles: ["ADMIN", "BAND"] },
 ];
 
 export default function Sidebar() {

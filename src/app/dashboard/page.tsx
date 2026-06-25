@@ -15,6 +15,10 @@ export default function DashboardPage() {
   const [period, setPeriod] = useState("today");
 
   useEffect(() => {
+    if (role === "BAND") {
+      window.location.href = "/dashboard/song-requests";
+      return;
+    }
     const fetchData = async () => {
       setLoading(true);
       try {

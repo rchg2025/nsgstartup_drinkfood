@@ -49,7 +49,8 @@ export default function PublicOrderingPage() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerType, setCustomerType] = useState<"HSSV" | "RETAIL" | null>(null); // HSSV or RETAIL
-  const [showCustomerTypeModal, setShowCustomerTypeModal] = useState(true);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+  const [showCustomerTypeModal, setShowCustomerTypeModal] = useState(false);
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [orderNote, setOrderNote] = useState("");
@@ -107,6 +108,27 @@ export default function PublicOrderingPage() {
   const [srOtherTipAmount, setSrOtherTipAmount] = useState<number | "">("");
   const [submittingSr, setSubmittingSr] = useState(false);
   const [srSuccess, setSrSuccess] = useState(false);
+  const [srActiveTab, setSrActiveTab] = useState<"create" | "list">("create");
+  const [srList, setSrList] = useState<any[]>([]);
+  const [srLoading, setSrLoading] = useState(false);
+
+  const fetchPublicSongRequests = async () => {
+    setSrLoading(true);
+    try {
+      const res = await fetch("/api/public/song-requests");
+      const data = await res.json();
+      setSrList(data);
+    } catch (e) {
+      console.error(e);
+    }
+    setSrLoading(false);
+  };
+
+  useEffect(() => {
+    if (isSongRequestOpen && srActiveTab === "list") {
+      fetchPublicSongRequests();
+    }
+  }, [isSongRequestOpen, srActiveTab]);
 
   // Point lookup state
   const [isPointModalOpen, setIsPointModalOpen] = useState(false);
@@ -722,9 +744,37 @@ export default function PublicOrderingPage() {
         </button>
       )}
 
-      {/* Overlay for Cart */}
+      {/* ===== Overlay for Cart ===== */}
       {isCartOpen && (
         <div className="modal-overlay" onClick={() => setIsCartOpen(false)} style={{ zIndex: 150 }}></div>
+      )}
+
+      {/* ===== Welcome Modal ===== */}
+      {showWelcomeModal && (
+        <div className="modal-overlay" style={{ zIndex: 400 }}>
+          <div className="modal" style={{ maxWidth: 450, textAlign: "center", padding: "40px 20px" }}>
+            <h2 className="modal-title" style={{ fontSize: "24px", fontWeight: 800, marginBottom: 12 }}>Xin chào Quý khách!</h2>
+            <p style={{ color: "#5c6275", marginBottom: 32, fontSize: 16 }}>
+              Vui lòng chọn dịch vụ bạn muốn sử dụng hôm nay.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <button
+                className={styles.submitBtn}
+                style={{ padding: "16px", fontSize: "16px", background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", boxShadow: "0 4px 10px rgba(16, 185, 129, 0.3)", justifyContent: "center" }}
+                onClick={() => { setShowWelcomeModal(false); setShowCustomerTypeModal(true); }}
+              >
+                🛒 Bắt đầu Đặt món
+              </button>
+              <button
+                className={styles.submitBtn}
+                style={{ padding: "16px", fontSize: "16px", background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)", boxShadow: "0 4px 10px rgba(239, 68, 68, 0.3)", justifyContent: "center" }}
+                onClick={() => { setShowWelcomeModal(false); setIsSongRequestOpen(true); }}
+              >
+                🎵 Yêu cầu Bài hát
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ===== Customer Type Selection Modal ===== */}
@@ -1065,22 +1115,65 @@ export default function PublicOrderingPage() {
       {/* ===== Song Request Modal ===== */}
       {isSongRequestOpen && (
         <div className="modal-overlay" style={{ zIndex: 400 }} onClick={() => setIsSongRequestOpen(false)}>
-          <div className="modal" style={{ maxWidth: 450, maxHeight: "90vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
+          <div className="modal" style={{ maxWidth: 450, maxHeight: "90vh", display: "flex", flexDirection: "column" }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header" style={{ marginBottom: 16 }}>
               <h2 className="modal-title">🎵 Yêu cầu bài hát</h2>
               <button className="modal-close" onClick={() => setIsSongRequestOpen(false)}>✕</button>
             </div>
-            {srSuccess ? (
-              <div style={{ textAlign: "center", padding: "24px 0" }}>
-                <div style={{ fontSize: 48, marginBottom: 16 }}>🎸</div>
-                <h3 style={{ fontSize: 20, fontWeight: 700, color: "var(--primary)", marginBottom: 8 }}>Gửi yêu cầu thành công!</h3>
-                <p style={{ color: "#64748b", marginBottom: 24 }}>Band nhạc đã nhận được yêu cầu của bạn và sẽ sớm phản hồi.</p>
-                <button className="btn btn-primary" onClick={() => setIsSongRequestOpen(false)} style={{ width: "100%" }}>
-                  Đóng
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmitSongRequest}>
+
+            <div style={{ display: "flex", gap: 8, marginBottom: 20, background: "#f1f5f9", padding: 4, borderRadius: 8, flexShrink: 0 }}>
+              <button 
+                style={{ flex: 1, padding: "8px 0", borderRadius: 6, fontWeight: 600, fontSize: 14, background: srActiveTab === "create" ? "#fff" : "transparent", color: srActiveTab === "create" ? "var(--primary)" : "#64748b", boxShadow: srActiveTab === "create" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", border: "none", cursor: "pointer", transition: "all 0.2s" }}
+                onClick={() => setSrActiveTab("create")}
+              >
+                Tạo yêu cầu
+              </button>
+              <button 
+                style={{ flex: 1, padding: "8px 0", borderRadius: 6, fontWeight: 600, fontSize: 14, background: srActiveTab === "list" ? "#fff" : "transparent", color: srActiveTab === "list" ? "var(--primary)" : "#64748b", boxShadow: srActiveTab === "list" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", border: "none", cursor: "pointer", transition: "all 0.2s" }}
+                onClick={() => setSrActiveTab("list")}
+              >
+                Danh sách bài hát
+              </button>
+            </div>
+
+            {srActiveTab === "list" && (
+               <div style={{ flex: 1, overflowY: "auto", paddingRight: 4 }}>
+                 {srLoading ? (
+                   <div style={{ textAlign: "center", padding: 40, color: "#64748b" }}>⏳ Đang tải...</div>
+                 ) : srList.length === 0 ? (
+                   <div style={{ textAlign: "center", padding: 40, color: "#64748b" }}>Chưa có bài hát nào được yêu cầu.</div>
+                 ) : (
+                   <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                     {srList.map(req => (
+                       <div key={req.id} style={{ padding: 12, borderRadius: 8, background: "#fff", border: "1px solid #e2e8f0", borderLeft: `4px solid ${req.status === 'ACCEPTED' ? '#10b981' : req.status === 'COMPLETED' ? '#3b82f6' : req.status === 'REJECTED' ? '#ef4444' : '#f59e0b'}` }}>
+                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                           <strong style={{ fontSize: 15, color: "#1e293b", flex: 1 }}>{req.songName || "Không rõ bài hát"}</strong>
+                           <span style={{ fontSize: 12, fontWeight: 700, padding: "2px 8px", borderRadius: 12, background: req.status === "ACCEPTED" ? "rgba(16,185,129,0.1)" : req.status === "COMPLETED" ? "rgba(59,130,246,0.1)" : req.status === "REJECTED" ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)", color: req.status === "ACCEPTED" ? "#10b981" : req.status === "COMPLETED" ? "#3b82f6" : req.status === "REJECTED" ? "#ef4444" : "#f59e0b", whiteSpace: "nowrap", marginLeft: 8 }}>
+                             {req.status === "ACCEPTED" ? "Sắp diễn" : req.status === "COMPLETED" ? "Đã diễn" : req.status === "REJECTED" ? "Từ chối" : "Đang chờ"}
+                           </span>
+                         </div>
+                         <div style={{ fontSize: 13, color: "#64748b", marginBottom: 4 }}>👤 {req.requesterName || "Khách ẩn danh"} • {new Date(req.createdAt).toLocaleTimeString("vi-VN", {hour: '2-digit', minute:'2-digit'})}</div>
+                         {req.message && <div style={{ fontSize: 14, color: "#334155", fontStyle: "italic", background: "#f8fafc", padding: 8, borderRadius: 6, mt: 8 }}>"{req.message}"</div>}
+                       </div>
+                     ))}
+                   </div>
+                 )}
+               </div>
+            )}
+
+            {srActiveTab === "create" && (
+              <div style={{ flex: 1, overflowY: "auto", paddingRight: 4 }}>
+                {srSuccess ? (
+                  <div style={{ textAlign: "center", padding: "24px 0" }}>
+                    <div style={{ fontSize: 48, marginBottom: 16 }}>🎸</div>
+                    <h3 style={{ fontSize: 20, fontWeight: 700, color: "var(--primary)", marginBottom: 8 }}>Gửi yêu cầu thành công!</h3>
+                    <p style={{ color: "#64748b", marginBottom: 24 }}>Band nhạc đã nhận được yêu cầu của bạn và sẽ sớm phản hồi.</p>
+                    <button className="btn btn-primary" onClick={() => { setSrSuccess(false); setSrActiveTab("list"); }} style={{ width: "100%", justifyContent: "center" }}>
+                      Xem danh sách bài hát
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmitSongRequest}>
                 <div className="form-group" style={{ marginBottom: 16 }}>
                   <label className="form-label" style={{ display: "block", marginBottom: 8, fontWeight: 600 }}>Chia sẻ cảm nghĩ / Câu chuyện <span style={{color:"red"}}>*</span></label>
                   <textarea
@@ -1194,13 +1287,13 @@ export default function PublicOrderingPage() {
                     {submittingSr ? "Đang gửi..." : "Gửi yêu cầu"}
                   </button>
                 </div>
-              </form>
+                  </form>
+                )}
+              </div>
             )}
           </div>
         </div>
       )}
-
     </div>
   );
 }
-

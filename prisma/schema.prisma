@@ -43,6 +43,7 @@ enum NotificationType {
 enum SongRequestStatus {
   PENDING
   ACCEPTED
+  COMPLETED
   REJECTED
 }
 
