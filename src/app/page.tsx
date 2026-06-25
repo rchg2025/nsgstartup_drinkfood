@@ -430,9 +430,9 @@ export default function PublicOrderingPage() {
         <div className={styles.menuHeader}>
           <div className={styles.brandName} style={{ cursor: "pointer" }} onClick={() => window.location.reload()}>
             <div className={styles.brandIcon}>🍹</div>
-            <span className={styles.brandNameText}>NSGSTARTUP POS</span>
+            <span className={styles.brandNameText}>NSGSTARTUP MENU</span>
           </div>
-          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+          <div className={styles.headerActions} style={{ display: "flex", gap: "12px", alignItems: "center" }}>
             <button 
               className={styles.sizeBtn} 
               style={{ padding: "6px 12px", borderRadius: 20, fontSize: 13, fontWeight: 700, color: "var(--primary)", border: "1px solid var(--primary)", background: "rgba(239, 68, 68, 0.05)" }}

@@ -651,7 +651,16 @@
 /* Responsive */
 @media (max-width: 900px) {
   .menuHeader {
-    padding: 20px 24px 12px;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px 24px 16px;
+  }
+  .brandName {
+    justify-content: center;
+  }
+  .headerActions {
+    justify-content: center;
+    width: 100%;
   }
   .categories {
     padding: 0 24px 16px;
