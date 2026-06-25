@@ -33,6 +33,7 @@ export default function Sidebar() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const [activeOrdersCount, setActiveOrdersCount] = useState(0);
+  const [pendingSongReqs, setPendingSongReqs] = useState(0);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotif, setShowNotif] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -71,6 +72,22 @@ export default function Sidebar() {
                }
                return newChatCount;
              });
+          }
+        }
+        
+        if (role === "ADMIN" || role === "BAND") {
+          const srRes = await fetch("/api/song-requests");
+          if (srRes.ok) {
+            const srData = await srRes.json();
+            if (Array.isArray(srData)) {
+              const pendingCount = srData.filter((r: any) => r.status === "PENDING").length;
+              setPendingSongReqs(prev => {
+                if (pendingCount > prev && pathname !== "/dashboard/song-requests") {
+                  new Audio("https://raw.githubusercontent.com/rchg2025/nsgstartup_drinkfood/main/src/lib/tingtingtinnhan.mp3").play().catch(() => {});
+                }
+                return pendingCount;
+              });
+            }
           }
         }
       } catch {}
@@ -177,6 +194,11 @@ export default function Sidebar() {
               {item.href === "/dashboard/chat" && unreadChatCount > 0 && (
                 <span className={styles.navBadge} style={{ background: "var(--purple)" }}>
                   {unreadChatCount}
+                </span>
+              )}
+              {item.href === "/dashboard/song-requests" && pendingSongReqs > 0 && (
+                <span className={styles.navBadge} style={{ background: "#ef4444", animation: "pulse 2s infinite" }}>
+                  {pendingSongReqs}
                 </span>
               )}
               {isActive && <span className={styles.activeDot} />}

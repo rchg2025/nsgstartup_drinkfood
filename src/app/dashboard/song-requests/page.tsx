@@ -24,19 +24,25 @@ export default function SongRequestsPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const updateStatus = async (id: string, status: "ACCEPTED" | "REJECTED" | "COMPLETED") => {
+  const updateStatus = async (id: string, status: string, rejectReason?: string) => {
     setProcessingId(id);
     try {
       await fetch(`/api/song-requests/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status, rejectReason })
       });
       fetchRequests();
     } catch (e) {
       alert("Lỗi khi cập nhật trạng thái");
     }
     setProcessingId(null);
+  };
+
+  const handleReject = (id: string) => {
+    const reason = window.prompt("Vui lòng nhập lý do từ chối (ví dụ: Không thuộc bài, Hết giờ...):");
+    if (reason === null) return; // Cancel
+    updateStatus(id, "REJECTED", reason);
   };
 
   const submitTip = async (id: string) => {
@@ -134,6 +140,9 @@ export default function SongRequestsPage() {
                       }}>
                         {req.status === "PENDING" ? "Đang chờ" : req.status === "ACCEPTED" ? "Đã đồng ý" : req.status === "COMPLETED" ? "Đã diễn" : "Từ chối"}
                       </span>
+                      {req.status === "REJECTED" && req.rejectReason && (
+                        <div style={{ fontSize: 11, color: "#ef4444", marginTop: 4, fontStyle: "italic" }}>{req.rejectReason}</div>
+                      )}
                     </td>
                     <td style={{ padding: "14px 16px", textAlign: "center" }}>
                       {req.status === "PENDING" && (
@@ -149,7 +158,7 @@ export default function SongRequestsPage() {
                           <button 
                             className="btn" 
                             style={{ background: "#ef4444", color: "#fff", padding: "6px 10px", fontSize: 12, minWidth: 0, flex: 1 }}
-                            onClick={() => updateStatus(req.id, "REJECTED")}
+                            onClick={() => handleReject(req.id)}
                             disabled={processingId === req.id}
                           >
                             ✕ Từ chối

@@ -210,6 +210,9 @@ export default function SongRequestPage() {
                                <span style={{ fontSize: 13, fontWeight: 700, padding: "6px 12px", borderRadius: 12, background: req.status === "ACCEPTED" ? "rgba(16,185,129,0.1)" : req.status === "COMPLETED" ? "rgba(59,130,246,0.1)" : req.status === "REJECTED" ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)", color: req.status === "ACCEPTED" ? "#10b981" : req.status === "COMPLETED" ? "#3b82f6" : req.status === "REJECTED" ? "#ef4444" : "#f59e0b", whiteSpace: "nowrap" }}>
                                  {req.status === "ACCEPTED" ? "Sắp diễn" : req.status === "COMPLETED" ? "Đã diễn" : req.status === "REJECTED" ? "Từ chối" : "Đang chờ"}
                                </span>
+                               {req.status === "REJECTED" && req.rejectReason && (
+                                 <div style={{ fontSize: 11, color: "#ef4444", marginTop: 4, fontStyle: "italic", maxWidth: 150, margin: "4px auto 0" }}>{req.rejectReason}</div>
+                               )}
                              </td>
                            </tr>
                          ))}

@@ -410,6 +410,7 @@ model SongRequest {
   tipReceivedAt   DateTime?         
 
   status          SongRequestStatus @default(PENDING)
+  rejectReason    String?           // Lý do từ chối
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 

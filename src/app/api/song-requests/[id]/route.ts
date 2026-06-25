@@ -13,7 +13,7 @@ export async function PATCH(req: NextRequest, props: { params: Promise<{ id: str
 
   try {
     const body = await req.json();
-    const { status, isTipReceived, tipSenderAccount, tipReceivedAt } = body;
+    const { status, isTipReceived, tipSenderAccount, tipReceivedAt, rejectReason } = body;
     
     const id = params.id;
     if (!id) return NextResponse.json({ error: "Missing ID" }, { status: 400 });
@@ -24,7 +24,8 @@ export async function PATCH(req: NextRequest, props: { params: Promise<{ id: str
         ...(status !== undefined && { status }),
         ...(isTipReceived !== undefined && { isTipReceived }),
         ...(tipSenderAccount !== undefined && { tipSenderAccount }),
-        ...(tipReceivedAt !== undefined && { tipReceivedAt: new Date(tipReceivedAt) })
+        ...(tipReceivedAt !== undefined && { tipReceivedAt: new Date(tipReceivedAt) }),
+        ...(rejectReason !== undefined && { rejectReason })
       },
     });
 
@@ -32,5 +33,29 @@ export async function PATCH(req: NextRequest, props: { params: Promise<{ id: str
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Failed to update song request" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+  const session = await auth();
+  const role = (session?.user as any)?.role;
+  
+  if (role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
+
+  try {
+    const id = params.id;
+    if (!id) return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+
+    await prisma.songRequest.delete({
+      where: { id }
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "Failed to delete song request" }, { status: 500 });
   }
 }
