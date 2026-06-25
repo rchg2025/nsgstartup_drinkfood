@@ -17,6 +17,29 @@ export default function SongRequestPage() {
   const [srActiveTab, setSrActiveTab] = useState<"create" | "list">("create");
   const [srList, setSrList] = useState<any[]>([]);
   const [srLoading, setSrLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus]);
+
+  const filteredSrList = srList.filter(req => {
+    if (filterStatus !== "ALL" && req.status !== filterStatus) return false;
+    if (searchTerm) {
+      const lowerTerm = searchTerm.toLowerCase();
+      const matchSong = req.songName?.toLowerCase().includes(lowerTerm);
+      const matchRequester = req.requesterName?.toLowerCase().includes(lowerTerm);
+      const matchMessage = req.message?.toLowerCase().includes(lowerTerm);
+      return matchSong || matchRequester || matchMessage;
+    }
+    return true;
+  });
+
+  const totalPages = Math.ceil(filteredSrList.length / itemsPerPage) || 1;
+  const currentSrList = filteredSrList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   useEffect(() => {
     fetch("/api/public/menu-data")
@@ -118,41 +141,87 @@ export default function SongRequestPage() {
              ) : srList.length === 0 ? (
                <div style={{ textAlign: "center", padding: 40, color: "#64748b" }}>Chưa có bài hát nào được yêu cầu.</div>
              ) : (
-               <div style={{ overflowX: "auto", borderRadius: 8, border: "1px solid #e2e8f0" }}>
-                 <table style={{ width: "100%", minWidth: 600, borderCollapse: "collapse", textAlign: "left", fontSize: 14 }}>
-                   <thead>
-                     <tr style={{ background: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
-                       <th style={{ padding: "14px 16px", color: "#475569", fontWeight: 600, width: 60, textAlign: "center" }}>STT</th>
-                       <th style={{ padding: "14px 16px", color: "#475569", fontWeight: 600, width: "25%" }}>Bài hát</th>
-                       <th style={{ padding: "14px 16px", color: "#475569", fontWeight: 600, width: "20%" }}>Khách hàng</th>
-                       <th style={{ padding: "14px 16px", color: "#475569", fontWeight: 600 }}>Cảm nghĩ</th>
-                       <th style={{ padding: "14px 16px", color: "#475569", fontWeight: 600, width: 100, textAlign: "center" }}>Trạng thái</th>
-                     </tr>
-                   </thead>
-                   <tbody>
-                     {srList.map((req, index) => (
-                       <tr key={req.id} style={{ borderBottom: "1px solid #e2e8f0", background: "#fff" }}>
-                         <td style={{ padding: "14px 16px", color: "#1e293b", fontWeight: 600, textAlign: "center" }}>{index + 1}</td>
-                         <td style={{ padding: "14px 16px", color: "#1e293b", fontWeight: 600 }}>{req.songName || "Không rõ"}</td>
-                         <td style={{ padding: "14px 16px", color: "#64748b" }}>
-                           <div style={{ display: "flex", alignItems: "center", gap: 4, fontWeight: 500 }}>
-                             👤 {req.requesterName || "Khách ẩn danh"}
-                           </div>
-                           <div style={{ fontSize: 13, marginTop: 4 }}>{new Date(req.createdAt).toLocaleTimeString("vi-VN", {hour: '2-digit', minute:'2-digit'})}</div>
-                         </td>
-                         <td style={{ padding: "14px 16px", color: "#334155", fontStyle: req.message ? "italic" : "normal" }}>
-                           {req.message ? `"${req.message}"` : "-"}
-                         </td>
-                         <td style={{ padding: "14px 16px", textAlign: "center" }}>
-                           <span style={{ fontSize: 13, fontWeight: 700, padding: "6px 12px", borderRadius: 12, background: req.status === "ACCEPTED" ? "rgba(16,185,129,0.1)" : req.status === "COMPLETED" ? "rgba(59,130,246,0.1)" : req.status === "REJECTED" ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)", color: req.status === "ACCEPTED" ? "#10b981" : req.status === "COMPLETED" ? "#3b82f6" : req.status === "REJECTED" ? "#ef4444" : "#f59e0b", whiteSpace: "nowrap" }}>
-                             {req.status === "ACCEPTED" ? "Sắp diễn" : req.status === "COMPLETED" ? "Đã diễn" : req.status === "REJECTED" ? "Từ chối" : "Đang chờ"}
-                           </span>
-                         </td>
-                       </tr>
-                     ))}
-                   </tbody>
-                 </table>
-               </div>
+               <>
+                 <div style={{ marginBottom: 16, display: "flex", gap: 12, flexWrap: "wrap" }}>
+                   <input 
+                     type="text" 
+                     placeholder="🔍 Tìm kiếm bài hát, người gửi, lời nhắn..." 
+                     value={searchTerm}
+                     onChange={(e) => setSearchTerm(e.target.value)}
+                     style={{ flex: 1, minWidth: 200, padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14 }}
+                   />
+                   <select 
+                     value={filterStatus}
+                     onChange={(e) => setFilterStatus(e.target.value)}
+                     style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 14, background: "#fff", cursor: "pointer", outline: "none" }}
+                   >
+                     <option value="ALL">Tất cả trạng thái</option>
+                     <option value="PENDING">Đang chờ</option>
+                     <option value="ACCEPTED">Sắp diễn</option>
+                     <option value="COMPLETED">Đã diễn</option>
+                     <option value="REJECTED">Từ chối</option>
+                   </select>
+                 </div>
+
+                 {filteredSrList.length === 0 ? (
+                   <div style={{ textAlign: "center", padding: 40, color: "#64748b", background: "#fff", borderRadius: 8, border: "1px solid #e2e8f0" }}>Không tìm thấy yêu cầu phù hợp với bộ lọc.</div>
+                 ) : (
+                   <div style={{ overflowX: "auto", borderRadius: 8, border: "1px solid #e2e8f0" }}>
+                     <table style={{ width: "100%", minWidth: 600, borderCollapse: "collapse", textAlign: "left", fontSize: 14 }}>
+                       <thead>
+                         <tr style={{ background: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
+                           <th style={{ padding: "14px 16px", color: "#475569", fontWeight: 600, width: 60, textAlign: "center" }}>STT</th>
+                           <th style={{ padding: "14px 16px", color: "#475569", fontWeight: 600, width: "25%" }}>Bài hát</th>
+                           <th style={{ padding: "14px 16px", color: "#475569", fontWeight: 600, width: "20%" }}>Khách hàng</th>
+                           <th style={{ padding: "14px 16px", color: "#475569", fontWeight: 600 }}>Cảm nghĩ</th>
+                           <th style={{ padding: "14px 16px", color: "#475569", fontWeight: 600, width: 100, textAlign: "center" }}>Trạng thái</th>
+                         </tr>
+                       </thead>
+                       <tbody>
+                         {currentSrList.map((req, index) => (
+                           <tr key={req.id} style={{ borderBottom: "1px solid #e2e8f0", background: "#fff" }}>
+                             <td style={{ padding: "14px 16px", color: "#1e293b", fontWeight: 600, textAlign: "center" }}>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                             <td style={{ padding: "14px 16px", color: "#1e293b", fontWeight: 600 }}>{req.songName || "Không rõ"}</td>
+                             <td style={{ padding: "14px 16px", color: "#64748b" }}>
+                               <div style={{ display: "flex", alignItems: "center", gap: 4, fontWeight: 500 }}>
+                                 👤 {req.requesterName || "Khách ẩn danh"}
+                               </div>
+                               <div style={{ fontSize: 13, marginTop: 4 }}>{new Date(req.createdAt).toLocaleTimeString("vi-VN", {hour: '2-digit', minute:'2-digit'})}</div>
+                             </td>
+                             <td style={{ padding: "14px 16px", color: "#334155", fontStyle: req.message ? "italic" : "normal" }}>
+                               {req.message ? `"${req.message}"` : "-"}
+                             </td>
+                             <td style={{ padding: "14px 16px", textAlign: "center" }}>
+                               <span style={{ fontSize: 13, fontWeight: 700, padding: "6px 12px", borderRadius: 12, background: req.status === "ACCEPTED" ? "rgba(16,185,129,0.1)" : req.status === "COMPLETED" ? "rgba(59,130,246,0.1)" : req.status === "REJECTED" ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)", color: req.status === "ACCEPTED" ? "#10b981" : req.status === "COMPLETED" ? "#3b82f6" : req.status === "REJECTED" ? "#ef4444" : "#f59e0b", whiteSpace: "nowrap" }}>
+                                 {req.status === "ACCEPTED" ? "Sắp diễn" : req.status === "COMPLETED" ? "Đã diễn" : req.status === "REJECTED" ? "Từ chối" : "Đang chờ"}
+                               </span>
+                             </td>
+                           </tr>
+                         ))}
+                       </tbody>
+                     </table>
+                   </div>
+                 )}
+                 {totalPages > 1 && (
+                   <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, marginTop: 16 }}>
+                     <button 
+                       disabled={currentPage === 1}
+                       onClick={() => setCurrentPage(prev => prev - 1)}
+                       style={{ padding: "6px 12px", borderRadius: 6, border: "1px solid #cbd5e1", background: currentPage === 1 ? "#f1f5f9" : "#fff", color: currentPage === 1 ? "#94a3b8" : "#334155", cursor: currentPage === 1 ? "not-allowed" : "pointer" }}
+                     >
+                       Trước
+                     </button>
+                     <span style={{ fontSize: 14, color: "#475569", fontWeight: 500 }}>Trang {currentPage} / {totalPages}</span>
+                     <button 
+                       disabled={currentPage === totalPages}
+                       onClick={() => setCurrentPage(prev => prev + 1)}
+                       style={{ padding: "6px 12px", borderRadius: 6, border: "1px solid #cbd5e1", background: currentPage === totalPages ? "#f1f5f9" : "#fff", color: currentPage === totalPages ? "#94a3b8" : "#334155", cursor: currentPage === totalPages ? "not-allowed" : "pointer" }}
+                     >
+                       Sau
+                     </button>
+                   </div>
+                 )}
+               </>
              )}
            </div>
         )}
