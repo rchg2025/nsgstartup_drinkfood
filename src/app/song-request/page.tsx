@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { formatCurrency } from "@/lib/utils";
+import styles from "../page.module.css";
 
 export default function SongRequestPage() {
   const [bankSettings, setBankSettings] = useState<any>(null);
@@ -135,13 +136,25 @@ export default function SongRequestPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f8fafc", padding: "20px 10px", display: "flex", justifyContent: "center", alignItems: "flex-start", fontFamily: "var(--font-geist-sans)" }}>
-      <div style={{ width: "100%", maxWidth: 1200, background: "#fff", borderRadius: 16, boxShadow: "0 10px 25px rgba(0,0,0,0.05)", padding: 24, display: "flex", flexDirection: "column" }}>
-        
-        <div style={{ marginBottom: 24, textAlign: "center" }}>
-          <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--primary)" }}>🎵 Yêu cầu bài hát</h2>
-          <p style={{ color: "#64748b", marginTop: 8 }}>Gửi tặng bài hát và những lời yêu thương</p>
+    <div style={{ minHeight: "100vh", background: "#f8fafc", display: "flex", flexDirection: "column", fontFamily: "var(--font-geist-sans)" }}>
+      <div className={styles.menuHeader} style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.05)", position: "sticky", top: 0 }}>
+        <div className={styles.brandName} style={{ cursor: "pointer" }} onClick={() => window.location.href = '/'}>
+          <div className={styles.brandIcon}>🍹</div>
+          <span className={styles.brandNameText}>NSGSTARTUP MENU</span>
         </div>
+        <div className={styles.headerActions} style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+          <button 
+            style={{ padding: "8px 16px", borderRadius: 20, fontSize: 14, fontWeight: 700, color: "#fff", border: "none", background: "var(--primary)", cursor: "pointer" }}
+            onClick={() => window.location.href = '/'}
+          >
+            🏠 Trang chủ
+          </button>
+        </div>
+      </div>
+
+      <div style={{ flex: 1, padding: "20px 10px", display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+        <div style={{ width: "100%", maxWidth: 1200, background: "#fff", borderRadius: 16, boxShadow: "0 10px 25px rgba(0,0,0,0.05)", padding: 24, display: "flex", flexDirection: "column" }}>
+          <div style={{ marginBottom: 24, textAlign: "center" }}>
 
         <div style={{ display: "flex", gap: 8, marginBottom: 24, background: "#f1f5f9", padding: 4, borderRadius: 8, flexShrink: 0 }}>
           <button 
@@ -419,6 +432,7 @@ export default function SongRequestPage() {
             )}
           </div>
         )}
+        </div>
       </div>
     </div>
   );
