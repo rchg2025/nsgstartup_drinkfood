@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { formatCurrency } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 
 export default function SongRequestsPage() {
   const [requests, setRequests] = useState<any[]>([]);
@@ -10,6 +11,8 @@ export default function SongRequestsPage() {
   const itemsPerPage = 10;
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const { data: session } = useSession();
+  const role = (session?.user as any)?.role || "";
 
   const fetchRequests = async () => {
     try {
@@ -72,6 +75,28 @@ export default function SongRequestsPage() {
     setProcessingId(null);
   };
 
+  const handleDeleteAll = async () => {
+    if (!confirm("Bạn có CHẮC CHẮN muốn xóa TẤT CẢ yêu cầu bài hát không? Hành động này không thể hoàn tác.")) return;
+    try {
+      await fetch("/api/song-requests", { method: "DELETE" });
+      fetchRequests();
+    } catch (e) {
+      alert("Lỗi khi xóa tất cả");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Bạn có chắc chắn muốn xóa yêu cầu bài hát này không?")) return;
+    setProcessingId(id);
+    try {
+      await fetch(`/api/song-requests/${id}`, { method: "DELETE" });
+      fetchRequests();
+    } catch (e) {
+      alert("Lỗi khi xóa");
+    }
+    setProcessingId(null);
+  };
+
   if (loading) return <div style={{ padding: 24 }}>⏳ Đang tải dữ liệu...</div>;
 
   const totalPages = Math.ceil(requests.length / itemsPerPage) || 1;
@@ -81,7 +106,14 @@ export default function SongRequestsPage() {
     <div style={{ padding: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--primary)" }}>🎵 Yêu cầu bài hát từ khách hàng</h1>
-        <button className="btn btn-secondary" onClick={fetchRequests}>🔄 Làm mới</button>
+        <div style={{ display: "flex", gap: 8 }}>
+          {role === "ADMIN" && (
+            <button className="btn" style={{ background: "#ef4444", color: "#fff", padding: "8px 16px", borderRadius: 8, fontWeight: 600, border: "none" }} onClick={handleDeleteAll}>
+              🗑️ Xóa tất cả
+            </button>
+          )}
+          <button className="btn btn-secondary" onClick={fetchRequests}>🔄 Làm mới</button>
+        </div>
       </div>
 
       <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 10px rgba(0,0,0,0.05)", overflow: "hidden" }}>
@@ -210,11 +242,21 @@ export default function SongRequestsPage() {
                       {req.status === "ACCEPTED" && (
                         <button 
                           className="btn btn-primary" 
-                          style={{ padding: "6px 16px", fontSize: 12, background: "#3b82f6", borderColor: "#3b82f6", width: "100%" }}
+                          style={{ padding: "6px 16px", fontSize: 12, background: "#3b82f6", borderColor: "#3b82f6", width: "100%", marginBottom: role === "ADMIN" ? 6 : 0 }}
                           onClick={() => updateStatus(req.id, "COMPLETED")}
                           disabled={processingId === req.id}
                         >
                           Hoàn thành
+                        </button>
+                      )}
+                      {role === "ADMIN" && (
+                        <button 
+                          className="btn" 
+                          style={{ background: "#fee2e2", color: "#ef4444", padding: "6px 16px", fontSize: 12, border: "none", width: "100%", marginTop: req.status === "REJECTED" || req.status === "COMPLETED" ? 0 : 6 }}
+                          onClick={() => handleDelete(req.id)}
+                          disabled={processingId === req.id}
+                        >
+                          🗑️ Xóa
                         </button>
                       )}
                     </td>

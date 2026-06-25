@@ -48,3 +48,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to create song request" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  const session = await auth();
+  const role = (session?.user as any)?.role;
+  
+  if (role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
+
+  try {
+    await prisma.songRequest.deleteMany({});
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "Failed to delete song requests" }, { status: 500 });
+  }
+}
