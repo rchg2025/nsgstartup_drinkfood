@@ -1,0 +1,307 @@
+"use client";
+import { useEffect, useState } from "react";
+import { formatCurrency } from "@/lib/utils";
+
+export default function SongRequestPage() {
+  const [bankSettings, setBankSettings] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const [srMessage, setSrMessage] = useState("");
+  const [srSongName, setSrSongName] = useState("");
+  const [srRequester, setSrRequester] = useState("");
+  const [srHasTip, setSrHasTip] = useState(false);
+  const [srTipAmount, setSrTipAmount] = useState<number | "other">(10000);
+  const [srOtherTipAmount, setSrOtherTipAmount] = useState<number | "">("");
+  const [submittingSr, setSubmittingSr] = useState(false);
+  const [srSuccess, setSrSuccess] = useState(false);
+  const [srActiveTab, setSrActiveTab] = useState<"create" | "list">("create");
+  const [srList, setSrList] = useState<any[]>([]);
+  const [srLoading, setSrLoading] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/public/menu-data")
+      .then(res => res.json())
+      .then(data => {
+        setBankSettings(data.settings || {});
+        setLoading(false);
+      });
+  }, []);
+
+  const fetchPublicSongRequests = async () => {
+    setSrLoading(true);
+    try {
+      const res = await fetch("/api/public/song-requests");
+      const data = await res.json();
+      setSrList(data);
+    } catch (e) {
+      console.error(e);
+    }
+    setSrLoading(false);
+  };
+
+  useEffect(() => {
+    if (srActiveTab === "list") {
+      fetchPublicSongRequests();
+    }
+  }, [srActiveTab]);
+
+  const handleSubmitSongRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!srMessage.trim()) return alert("Vui lòng nhập cảm nghĩ hoặc câu chuyện của bạn!");
+    
+    setSubmittingSr(true);
+    let finalTipAmount = 0;
+    if (srHasTip) {
+      if (srTipAmount === "other") {
+        finalTipAmount = Number(srOtherTipAmount) || 0;
+      } else {
+        finalTipAmount = Number(srTipAmount) || 0;
+      }
+    }
+
+    try {
+      const res = await fetch("/api/song-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: srMessage,
+          songName: srSongName,
+          requesterName: srRequester,
+          hasTip: srHasTip,
+          tipAmount: finalTipAmount,
+        }),
+      });
+      if (res.ok) {
+        setSrSuccess(true);
+      } else {
+        const data = await res.json();
+        alert("Lỗi: " + data.error);
+      }
+    } catch (err) {
+      alert("Lỗi kết nối");
+    }
+    setSubmittingSr(false);
+  };
+
+  if (loading) {
+    return <div style={{ textAlign: "center", padding: 50, color: "#64748b" }}>⏳ Đang tải dữ liệu...</div>;
+  }
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#f8fafc", padding: "20px 10px", display: "flex", justifyContent: "center", alignItems: "flex-start", fontFamily: "var(--font-geist-sans)" }}>
+      <div style={{ width: "100%", maxWidth: 800, background: "#fff", borderRadius: 16, boxShadow: "0 10px 25px rgba(0,0,0,0.05)", padding: 24, display: "flex", flexDirection: "column" }}>
+        
+        <div style={{ marginBottom: 24, textAlign: "center" }}>
+          <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--primary)" }}>🎵 Yêu cầu bài hát</h2>
+          <p style={{ color: "#64748b", marginTop: 8 }}>Gửi tặng bài hát và những lời yêu thương</p>
+        </div>
+
+        <div style={{ display: "flex", gap: 8, marginBottom: 24, background: "#f1f5f9", padding: 4, borderRadius: 8, flexShrink: 0 }}>
+          <button 
+            style={{ flex: 1, padding: "10px 0", borderRadius: 6, fontWeight: 600, fontSize: 15, background: srActiveTab === "create" ? "#fff" : "transparent", color: srActiveTab === "create" ? "var(--primary)" : "#64748b", boxShadow: srActiveTab === "create" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", border: "none", cursor: "pointer", transition: "all 0.2s" }}
+            onClick={() => setSrActiveTab("create")}
+          >
+            Tạo yêu cầu mới
+          </button>
+          <button 
+            style={{ flex: 1, padding: "10px 0", borderRadius: 6, fontWeight: 600, fontSize: 15, background: srActiveTab === "list" ? "#fff" : "transparent", color: srActiveTab === "list" ? "var(--primary)" : "#64748b", boxShadow: srActiveTab === "list" ? "0 1px 3px rgba(0,0,0,0.1)" : "none", border: "none", cursor: "pointer", transition: "all 0.2s" }}
+            onClick={() => setSrActiveTab("list")}
+          >
+            Danh sách bài hát
+          </button>
+        </div>
+
+        {srActiveTab === "list" && (
+           <div style={{ flex: 1 }}>
+             {srLoading ? (
+               <div style={{ textAlign: "center", padding: 40, color: "#64748b" }}>⏳ Đang tải...</div>
+             ) : srList.length === 0 ? (
+               <div style={{ textAlign: "center", padding: 40, color: "#64748b" }}>Chưa có bài hát nào được yêu cầu.</div>
+             ) : (
+               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                 {srList.map(req => (
+                   <div key={req.id} style={{ padding: 16, borderRadius: 12, background: "#fff", border: "1px solid #e2e8f0", borderLeft: `4px solid ${req.status === 'ACCEPTED' ? '#10b981' : req.status === 'COMPLETED' ? '#3b82f6' : req.status === 'REJECTED' ? '#ef4444' : '#f59e0b'}`, boxShadow: "0 2px 5px rgba(0,0,0,0.02)" }}>
+                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                       <strong style={{ fontSize: 16, color: "#1e293b", flex: 1 }}>{req.songName || "Không rõ bài hát"}</strong>
+                       <span style={{ fontSize: 12, fontWeight: 700, padding: "4px 10px", borderRadius: 12, background: req.status === "ACCEPTED" ? "rgba(16,185,129,0.1)" : req.status === "COMPLETED" ? "rgba(59,130,246,0.1)" : req.status === "REJECTED" ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)", color: req.status === "ACCEPTED" ? "#10b981" : req.status === "COMPLETED" ? "#3b82f6" : req.status === "REJECTED" ? "#ef4444" : "#f59e0b", whiteSpace: "nowrap", marginLeft: 12 }}>
+                         {req.status === "ACCEPTED" ? "Sắp diễn" : req.status === "COMPLETED" ? "Đã diễn" : req.status === "REJECTED" ? "Từ chối" : "Đang chờ"}
+                       </span>
+                     </div>
+                     <div style={{ fontSize: 14, color: "#64748b", marginBottom: 8 }}>👤 {req.requesterName || "Khách ẩn danh"} • {new Date(req.createdAt).toLocaleTimeString("vi-VN", {hour: '2-digit', minute:'2-digit'})}</div>
+                     {req.message && <div style={{ fontSize: 15, color: "#334155", fontStyle: "italic", background: "#f8fafc", padding: 12, borderRadius: 8, marginTop: 12 }}>"{req.message}"</div>}
+                   </div>
+                 ))}
+               </div>
+             )}
+           </div>
+        )}
+
+        {srActiveTab === "create" && (
+          <div style={{ flex: 1 }}>
+            {srSuccess ? (
+              <div style={{ textAlign: "center", padding: "40px 0" }}>
+                <div style={{ fontSize: 64, marginBottom: 20 }}>🎸</div>
+                <h3 style={{ fontSize: 24, fontWeight: 700, color: "var(--primary)", marginBottom: 12 }}>Gửi yêu cầu thành công!</h3>
+                <p style={{ color: "#64748b", marginBottom: 32, fontSize: 16 }}>Band nhạc đã nhận được yêu cầu của bạn và sẽ sớm phản hồi.</p>
+                <button 
+                  style={{ padding: "14px 24px", background: "var(--primary)", color: "white", border: "none", borderRadius: 8, fontWeight: 600, fontSize: 16, cursor: "pointer", width: "100%", maxWidth: 300 }}
+                  onClick={() => { setSrSuccess(false); setSrActiveTab("list"); }}
+                >
+                  Xem danh sách bài hát
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmitSongRequest}>
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ display: "block", marginBottom: 8, fontWeight: 600, color: "#1e293b", fontSize: 15 }}>Chia sẻ cảm nghĩ / Câu chuyện <span style={{color:"red"}}>*</span></label>
+                  <textarea
+                    style={{ width: "100%", padding: 12, borderRadius: 8, border: "1px solid #cbd5e1", minHeight: 100, fontSize: 15, fontFamily: "inherit", boxSizing: "border-box" }}
+                    placeholder="Bạn muốn chia sẻ điều gì?"
+                    value={srMessage}
+                    onChange={(e) => setSrMessage(e.target.value)}
+                    required
+                  />
+                </div>
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ display: "block", marginBottom: 8, fontWeight: 600, color: "#1e293b", fontSize: 15 }}>Bài hát yêu cầu (Không bắt buộc)</label>
+                  <input
+                    type="text"
+                    style={{ width: "100%", padding: 12, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 15, boxSizing: "border-box" }}
+                    placeholder="Tên bài hát / Ca sĩ"
+                    value={srSongName}
+                    onChange={(e) => setSrSongName(e.target.value)}
+                  />
+                </div>
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ display: "block", marginBottom: 8, fontWeight: 600, color: "#1e293b", fontSize: 15 }}>Họ tên người yêu cầu (Không bắt buộc)</label>
+                  <input
+                    type="text"
+                    style={{ width: "100%", padding: 12, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 15, boxSizing: "border-box" }}
+                    placeholder="Tên của bạn"
+                    value={srRequester}
+                    onChange={(e) => setSrRequester(e.target.value)}
+                  />
+                </div>
+                <div style={{ marginBottom: 24 }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: 10, fontWeight: 600, cursor: "pointer", color: "#1e293b", fontSize: 15 }}>
+                    <input
+                      type="checkbox"
+                      checked={srHasTip}
+                      onChange={(e) => setSrHasTip(e.target.checked)}
+                      style={{ width: 20, height: 20, accentColor: "var(--primary)" }}
+                    />
+                    Bồi dưỡng cho Band nhạc (Tip)
+                  </label>
+                </div>
+
+                {srHasTip && (
+                  <div style={{ background: "#f8fafc", padding: 20, borderRadius: 12, marginBottom: 24, border: "1px solid #e2e8f0" }}>
+                    <label style={{ display: "block", marginBottom: 12, fontWeight: 600, color: "#1e293b", fontSize: 15 }}>Chọn mức tiền tip</label>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 16 }}>
+                      {[5000, 10000, 20000, 50000].map(amount => (
+                        <button
+                          key={amount}
+                          type="button"
+                          onClick={() => setSrTipAmount(amount)}
+                          style={{
+                            padding: "10px 16px",
+                            borderRadius: 24,
+                            border: `2px solid ${srTipAmount === amount ? "var(--primary)" : "#cbd5e1"}`,
+                            background: srTipAmount === amount ? "rgba(239, 68, 68, 0.1)" : "#fff",
+                            color: srTipAmount === amount ? "var(--primary)" : "#475569",
+                            fontWeight: 600,
+                            fontSize: 15,
+                            cursor: "pointer"
+                          }}
+                        >
+                          {formatCurrency(amount)}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setSrTipAmount("other")}
+                        style={{
+                          padding: "10px 16px",
+                          borderRadius: 24,
+                          border: `2px solid ${srTipAmount === "other" ? "var(--primary)" : "#cbd5e1"}`,
+                          background: srTipAmount === "other" ? "rgba(239, 68, 68, 0.1)" : "#fff",
+                          color: srTipAmount === "other" ? "var(--primary)" : "#475569",
+                          fontWeight: 600,
+                          fontSize: 15,
+                          cursor: "pointer"
+                        }}
+                      >
+                        Khác
+                      </button>
+                    </div>
+                    {srTipAmount === "other" && (
+                      <input
+                        type="number"
+                        style={{ width: "100%", padding: 12, borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 15, boxSizing: "border-box", marginBottom: 16 }}
+                        placeholder="Nhập số tiền khác..."
+                        value={srOtherTipAmount}
+                        onChange={(e) => setSrOtherTipAmount(Number(e.target.value))}
+                      />
+                    )}
+
+                    {bankSettings?.band_bank_code && bankSettings?.band_bank_account && (
+                      <div style={{ textAlign: "center", marginTop: 20, borderTop: "1px dashed #cbd5e1", paddingTop: 20 }}>
+                        <p style={{ fontSize: 14, color: "#64748b", marginBottom: 12 }}>Quét mã QR để chuyển tiền cho Band</p>
+                        <div style={{ background: "white", padding: 16, borderRadius: 16, display: "inline-block", border: "1px solid #e2e8f0", boxShadow: "0 4px 10px rgba(0,0,0,0.05)" }}>
+                          <img 
+                            src={`https://img.vietqr.io/image/${bankSettings.band_bank_code}-${bankSettings.band_bank_account}-compact2.png?amount=${srTipAmount === "other" ? srOtherTipAmount : srTipAmount}&addInfo=Tip cho Band ${srRequester}`}
+                            alt="QR Code Band"
+                            style={{ width: 220, height: 220, objectFit: "contain" }}
+                          />
+                        </div>
+                        <div style={{ fontWeight: 800, color: "#1e293b", marginTop: 16, fontSize: 16 }}>{bankSettings.band_bank_account_name}</div>
+                        <div style={{ fontWeight: 700, color: "var(--primary)", fontSize: 16 }}>{bankSettings.band_bank_account} - {bankSettings.band_bank_code}</div>
+                        
+                        <div style={{ marginTop: 20, display: "flex", gap: 12, justifyContent: "center" }}>
+                          <button 
+                            type="button"
+                            onClick={async () => {
+                              const url = `https://img.vietqr.io/image/${bankSettings.band_bank_code}-${bankSettings.band_bank_account}-compact2.png?amount=${srTipAmount === "other" ? srOtherTipAmount : srTipAmount}&addInfo=Tip cho Band ${srRequester}`;
+                              try {
+                                const response = await fetch(url);
+                                const blob = await response.blob();
+                                const blobUrl = window.URL.createObjectURL(blob);
+                                const a = document.createElement("a");
+                                a.href = blobUrl;
+                                a.download = "QR_Tip_Band.png";
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(blobUrl);
+                                document.body.removeChild(a);
+                              } catch (e) {
+                                console.error("Lỗi khi tải ảnh, mở sang tab mới", e);
+                                window.open(url, "_blank");
+                              }
+                            }}
+                            style={{ padding: "12px 20px", borderRadius: 10, background: "#f8fafc", color: "#334155", fontWeight: 700, fontSize: 15, border: "1px solid #cbd5e1", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
+                          >
+                            ⬇️ Tải mã QR về máy
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div style={{ marginTop: 32 }}>
+                  <button 
+                    type="submit" 
+                    style={{ width: "100%", padding: "16px", background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)", color: "white", border: "none", borderRadius: 12, fontWeight: 700, fontSize: 16, cursor: "pointer", boxShadow: "0 4px 12px rgba(239, 68, 68, 0.3)" }} 
+                    disabled={submittingSr}
+                  >
+                    {submittingSr ? "⏳ Đang gửi yêu cầu..." : "✨ Gửi yêu cầu ngay"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
