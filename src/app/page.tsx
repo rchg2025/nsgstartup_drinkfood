@@ -1277,7 +1277,18 @@ export default function PublicOrderingPage() {
                         <div style={{ fontWeight: 700, color: "#1e293b", marginTop: 8 }}>{bankSettings.band_bank_account_name}</div>
                         <div style={{ fontWeight: 600, color: "var(--primary)" }}>{bankSettings.band_bank_account} - {bankSettings.band_bank_code}</div>
                         
-                        <div style={{ marginTop: 16, display: "flex", gap: 8, justifyContent: "center" }}>
+                        <div style={{ marginTop: 16, display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              const amount = srTipAmount === "other" ? srOtherTipAmount : srTipAmount;
+                              const addInfo = encodeURIComponent(`Tip cho Band ${srRequester}`);
+                              window.location.href = `https://dl.vietqr.io/pay?app=&ba=${bankSettings.band_bank_account}@${bankSettings.band_bank_code}&am=${amount}&addInfo=${addInfo}`;
+                            }}
+                            style={{ padding: "8px 16px", borderRadius: 8, background: "var(--primary)", color: "white", fontWeight: 600, fontSize: 14, border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}
+                          >
+                            💸 Chuyển ngay
+                          </button>
                           <button 
                             type="button"
                             onClick={async () => {

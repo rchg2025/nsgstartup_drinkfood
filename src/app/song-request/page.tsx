@@ -257,7 +257,18 @@ export default function SongRequestPage() {
                         <div style={{ fontWeight: 800, color: "#1e293b", marginTop: 16, fontSize: 16 }}>{bankSettings.band_bank_account_name}</div>
                         <div style={{ fontWeight: 700, color: "var(--primary)", fontSize: 16 }}>{bankSettings.band_bank_account} - {bankSettings.band_bank_code}</div>
                         
-                        <div style={{ marginTop: 20, display: "flex", gap: 12, justifyContent: "center" }}>
+                        <div style={{ marginTop: 20, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              const amount = srTipAmount === "other" ? srOtherTipAmount : srTipAmount;
+                              const addInfo = encodeURIComponent(`Tip cho Band ${srRequester}`);
+                              window.location.href = `https://dl.vietqr.io/pay?app=&ba=${bankSettings.band_bank_account}@${bankSettings.band_bank_code}&am=${amount}&addInfo=${addInfo}`;
+                            }}
+                            style={{ padding: "12px 20px", borderRadius: 10, background: "var(--primary)", color: "white", fontWeight: 700, fontSize: 15, border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
+                          >
+                            💸 Chuyển ngay
+                          </button>
                           <button 
                             type="button"
                             onClick={async () => {
