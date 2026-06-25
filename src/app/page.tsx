@@ -437,13 +437,7 @@ export default function PublicOrderingPage() {
               className={styles.sizeBtn} 
               style={{ padding: "6px 12px", borderRadius: 20, fontSize: 13, fontWeight: 700, color: "var(--primary)", border: "1px solid var(--primary)", background: "rgba(239, 68, 68, 0.05)" }}
               onClick={() => {
-                setIsSongRequestOpen(true);
-                setSrSuccess(false);
-                setSrMessage("");
-                setSrSongName("");
-                setSrRequester("");
-                setSrHasTip(false);
-                setSrTipAmount("");
+                window.location.href = '/song-request';
               }}
             >
               🎵 Yêu cầu bài hát
@@ -768,7 +762,7 @@ export default function PublicOrderingPage() {
               <button
                 className={styles.submitBtn}
                 style={{ padding: "16px", fontSize: "16px", background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)", boxShadow: "0 4px 10px rgba(239, 68, 68, 0.3)", justifyContent: "center" }}
-                onClick={() => { setShowWelcomeModal(false); setIsSongRequestOpen(true); }}
+                onClick={() => { window.location.href = '/song-request'; }}
               >
                 🎵 Yêu cầu Bài hát
               </button>
