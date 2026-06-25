@@ -155,6 +155,9 @@ export default function SongRequestPage() {
       <div style={{ flex: 1, padding: "20px 10px", display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
         <div style={{ width: "100%", maxWidth: 1200, background: "#fff", borderRadius: 16, boxShadow: "0 10px 25px rgba(0,0,0,0.05)", padding: 24, display: "flex", flexDirection: "column" }}>
           <div style={{ marginBottom: 24, textAlign: "center" }}>
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--primary)" }}>🎵 Yêu cầu bài hát</h2>
+            <p style={{ color: "#64748b", marginTop: 8 }}>Gửi tặng bài hát và những lời yêu thương</p>
+          </div>
 
         <div style={{ display: "flex", gap: 8, marginBottom: 24, background: "#f1f5f9", padding: 4, borderRadius: 8, flexShrink: 0 }}>
           <button 
