@@ -11,6 +11,7 @@ enum Role {
   ADMIN
   CASHIER
   BARISTA
+  BAND
 }
 
 enum OrderStatus {
@@ -37,6 +38,12 @@ enum NotificationType {
   ORDER_READY
   ORDER_CANCELLED
   ORDER_COMPLETED
+}
+
+enum SongRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 enum PointAction {
@@ -387,4 +394,23 @@ model InventoryLog {
   user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("inventory_logs")
+}
+
+model SongRequest {
+  id              String            @id @default(cuid())
+  message         String            // Chia sẻ cảm nghĩ / Câu chuyện
+  songName        String?           // Bài hát yêu cầu
+  requesterName   String?           // Họ tên người yêu cầu
+  hasTip          Boolean           @default(false)
+  tipAmount       Int?              // Mức tiền
+  
+  isTipReceived   Boolean           @default(false)
+  tipSenderAccount String?          
+  tipReceivedAt   DateTime?         
+
+  status          SongRequestStatus @default(PENDING)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@map("song_requests")
 }

@@ -7,6 +7,9 @@ export default function SettingsPage() {
   const [bankCode, setBankCode] = useState("");
   const [bankAccount, setBankAccount] = useState("");
   const [bankAccountName, setBankAccountName] = useState("");
+  const [bandBankCode, setBandBankCode] = useState("");
+  const [bandBankAccount, setBandBankAccount] = useState("");
+  const [bandBankAccountName, setBandBankAccountName] = useState("");
   const [commissionRate, setCommissionRate] = useState("50");
   const [gdriveClientEmail, setGdriveClientEmail] = useState("");
   const [gdrivePrivateKey, setGdrivePrivateKey] = useState("");
@@ -23,6 +26,9 @@ export default function SettingsPage() {
         if (data.bank_code) setBankCode(data.bank_code);
         if (data.bank_account) setBankAccount(data.bank_account);
         if (data.bank_account_name) setBankAccountName(data.bank_account_name);
+        if (data.band_bank_code) setBandBankCode(data.band_bank_code);
+        if (data.band_bank_account) setBandBankAccount(data.band_bank_account);
+        if (data.band_bank_account_name) setBandBankAccountName(data.band_bank_account_name);
         if (data.commission_rate) setCommissionRate(data.commission_rate);
         if (data.gdrive_client_email) setGdriveClientEmail(data.gdrive_client_email);
         if (data.gdrive_private_key) setGdrivePrivateKey(data.gdrive_private_key);
@@ -46,6 +52,9 @@ export default function SettingsPage() {
           bank_code: bankCode,
           bank_account: bankAccount,
           bank_account_name: bankAccountName.toUpperCase(),
+          band_bank_code: bandBankCode,
+          band_bank_account: bandBankAccount,
+          band_bank_account_name: bandBankAccountName.toUpperCase(),
           commission_rate: commissionRate,
           gdrive_client_email: gdriveClientEmail,
           gdrive_private_key: gdrivePrivateKey,
@@ -215,6 +224,41 @@ export default function SettingsPage() {
                   onChange={(e) => setBankAccountName(e.target.value.toUpperCase())}
                 />
               </div>
+
+              <h2 style={{ marginTop: 24, marginBottom: 16, fontSize: 18, color: "var(--text)" }}>
+                Thông tin Tài khoản Bồi dưỡng (Band nhạc)
+              </h2>
+              <div className="form-group">
+                <label className="form-label">Tên Ngân Hàng Band (Mã Ngân hàng)</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="VD: MB, VCB, BIDV, TCB"
+                  value={bandBankCode}
+                  onChange={(e) => setBandBankCode(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Số Tài Khoản Band</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="Nhập số tài khoản ngân hàng của Band"
+                  value={bandBankAccount}
+                  onChange={(e) => setBandBankAccount(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Tên Chủ Tài Khoản Band</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="VIET HOA CHU KHONG DAU"
+                  value={bandBankAccountName}
+                  onChange={(e) => setBandBankAccountName(e.target.value.toUpperCase())}
+                />
+              </div>
+
 
               <h2 style={{ marginTop: 24, marginBottom: 16, fontSize: 18, color: "var(--text)" }}>
                 Thiết lập Hoa hồng Nhân viên
