@@ -6,6 +6,8 @@ export default function SongRequestsPage() {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const fetchRequests = async () => {
     try {
@@ -66,6 +68,9 @@ export default function SongRequestsPage() {
 
   if (loading) return <div style={{ padding: 24 }}>⏳ Đang tải dữ liệu...</div>;
 
+  const totalPages = Math.ceil(requests.length / itemsPerPage) || 1;
+  const currentRequests = requests.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   return (
     <div style={{ padding: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
@@ -92,9 +97,9 @@ export default function SongRequestsPage() {
                 </tr>
               </thead>
               <tbody>
-                {requests.map((req, index) => (
+                {currentRequests.map((req, index) => (
                   <tr key={req.id} style={{ borderBottom: "1px solid #e2e8f0", background: req.status === "PENDING" ? "#fff" : "#fafafa" }}>
-                    <td style={{ padding: "14px 16px", textAlign: "center", fontWeight: 600, color: "#1e293b" }}>{index + 1}</td>
+                    <td style={{ padding: "14px 16px", textAlign: "center", fontWeight: 600, color: "#1e293b" }}>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                     <td style={{ padding: "14px 16px" }}>
                       <div style={{ fontWeight: 600, color: "#1e293b", marginBottom: 4 }}>👤 {req.requesterName || "Khách ẩn danh"}</div>
                       <div style={{ fontSize: 12, color: "#64748b" }}>{new Date(req.createdAt).toLocaleString("vi-VN")}</div>
@@ -180,6 +185,26 @@ export default function SongRequestsPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+        
+        {totalPages > 1 && (
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, padding: 16, borderTop: "1px solid #e2e8f0", background: "#f8fafc" }}>
+            <button 
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              style={{ padding: "6px 12px", borderRadius: 6, border: "1px solid #cbd5e1", background: currentPage === 1 ? "#f1f5f9" : "#fff", color: currentPage === 1 ? "#94a3b8" : "#334155", cursor: currentPage === 1 ? "not-allowed" : "pointer" }}
+            >
+              Trước
+            </button>
+            <span style={{ fontSize: 14, color: "#475569", fontWeight: 500 }}>Trang {currentPage} / {totalPages}</span>
+            <button 
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              style={{ padding: "6px 12px", borderRadius: 6, border: "1px solid #cbd5e1", background: currentPage === totalPages ? "#f1f5f9" : "#fff", color: currentPage === totalPages ? "#94a3b8" : "#334155", cursor: currentPage === totalPages ? "not-allowed" : "pointer" }}
+            >
+              Sau
+            </button>
           </div>
         )}
       </div>
