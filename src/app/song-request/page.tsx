@@ -36,6 +36,21 @@ export default function SongRequestPage() {
       return matchSong || matchRequester || matchMessage;
     }
     return true;
+  }).sort((a, b) => {
+    const statusOrder: Record<string, number> = {
+      "ACCEPTED": 1,
+      "PENDING": 2,
+      "COMPLETED": 3,
+      "REJECTED": 4
+    };
+    const orderA = statusOrder[a.status] || 99;
+    const orderB = statusOrder[b.status] || 99;
+    
+    if (orderA !== orderB) {
+      return orderA - orderB;
+    }
+    
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
   const totalPages = Math.ceil(filteredSrList.length / itemsPerPage) || 1;
