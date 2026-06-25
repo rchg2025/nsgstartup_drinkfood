@@ -12,8 +12,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
+  const { searchParams } = new URL(req.url);
+  const includeHidden = searchParams.get("includeHidden") === "true";
+
   try {
     const requests = await prisma.songRequest.findMany({
+      where: includeHidden ? undefined : { isHidden: false },
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(requests);
@@ -66,7 +70,15 @@ export async function DELETE(req: NextRequest) {
         where: { isTipReceived: true }
       });
     } else {
-      await prisma.songRequest.deleteMany({});
+      // Physically delete those without received tips
+      await prisma.songRequest.deleteMany({
+        where: { isTipReceived: false }
+      });
+      // For those with received tips, just hide them from the song requests view
+      await prisma.songRequest.updateMany({
+        where: { isTipReceived: true },
+        data: { isHidden: true }
+      });
     }
     
     return NextResponse.json({ success: true });

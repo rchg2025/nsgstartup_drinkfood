@@ -16,7 +16,7 @@ export default function ConfirmedTipsPage() {
 
   const fetchConfirmedTips = async () => {
     try {
-      const res = await fetch("/api/song-requests");
+      const res = await fetch("/api/song-requests?includeHidden=true");
       const data = await res.json();
       // Filter those with received tips
       const tips = data.filter((req: any) => req.hasTip && req.isTipReceived);
@@ -49,7 +49,7 @@ export default function ConfirmedTipsPage() {
     if (!confirm("Bạn có chắc chắn muốn xóa lượt Tip này không?")) return;
     setProcessingId(id);
     try {
-      await fetch(`/api/song-requests/${id}`, { method: "DELETE" });
+      await fetch(`/api/song-requests/${id}?fromTips=true`, { method: "DELETE" });
       fetchConfirmedTips();
     } catch (e) {
       alert("Lỗi khi xóa");

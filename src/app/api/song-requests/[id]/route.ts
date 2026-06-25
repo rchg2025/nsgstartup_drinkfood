@@ -49,9 +49,22 @@ export async function DELETE(req: NextRequest, props: { params: Promise<{ id: st
     const id = params.id;
     if (!id) return NextResponse.json({ error: "Missing ID" }, { status: 400 });
 
-    await prisma.songRequest.delete({
-      where: { id }
-    });
+    const { searchParams } = new URL(req.url);
+    const fromTips = searchParams.get("fromTips") === "true";
+
+    if (fromTips) {
+      await prisma.songRequest.delete({ where: { id } });
+    } else {
+      const existing = await prisma.songRequest.findUnique({ where: { id } });
+      if (existing?.isTipReceived) {
+        await prisma.songRequest.update({
+          where: { id },
+          data: { isHidden: true }
+        });
+      } else {
+        await prisma.songRequest.delete({ where: { id } });
+      }
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
