@@ -1115,7 +1115,7 @@ export default function PublicOrderingPage() {
       {/* ===== Song Request Modal ===== */}
       {isSongRequestOpen && (
         <div className="modal-overlay" style={{ zIndex: 400 }} onClick={() => setIsSongRequestOpen(false)}>
-          <div className="modal" style={{ maxWidth: 450, maxHeight: "90vh", display: "flex", flexDirection: "column" }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal" style={{ maxWidth: 800, maxHeight: "90vh", display: "flex", flexDirection: "column" }} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header" style={{ marginBottom: 16 }}>
               <h2 className="modal-title">🎵 Yêu cầu bài hát</h2>
               <button className="modal-close" onClick={() => setIsSongRequestOpen(false)}>✕</button>
@@ -1276,6 +1276,33 @@ export default function PublicOrderingPage() {
                         />
                         <div style={{ fontWeight: 700, color: "#1e293b", marginTop: 8 }}>{bankSettings.band_bank_account_name}</div>
                         <div style={{ fontWeight: 600, color: "var(--primary)" }}>{bankSettings.band_bank_account} - {bankSettings.band_bank_code}</div>
+                        
+                        <div style={{ marginTop: 16, display: "flex", gap: 8, justifyContent: "center" }}>
+                          <button 
+                            type="button"
+                            onClick={async () => {
+                              const url = `https://img.vietqr.io/image/${bankSettings.band_bank_code}-${bankSettings.band_bank_account}-compact2.png?amount=${srTipAmount === "other" ? srOtherTipAmount : srTipAmount}&addInfo=Tip cho Band ${srRequester}`;
+                              try {
+                                const response = await fetch(url);
+                                const blob = await response.blob();
+                                const blobUrl = window.URL.createObjectURL(blob);
+                                const a = document.createElement("a");
+                                a.href = blobUrl;
+                                a.download = "QR_Tip_Band.png";
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(blobUrl);
+                                document.body.removeChild(a);
+                              } catch (e) {
+                                console.error("Lỗi khi tải ảnh, mở sang tab mới", e);
+                                window.open(url, "_blank");
+                              }
+                            }}
+                            style={{ padding: "8px 16px", borderRadius: 8, background: "#f8fafc", color: "#334155", fontWeight: 600, fontSize: 14, border: "1px solid #cbd5e1", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}
+                          >
+                            ⬇️ Tải mã QR về máy
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
