@@ -1153,7 +1153,7 @@ export default function PublicOrderingPage() {
                            </span>
                          </div>
                          <div style={{ fontSize: 13, color: "#64748b", marginBottom: 4 }}>👤 {req.requesterName || "Khách ẩn danh"} • {new Date(req.createdAt).toLocaleTimeString("vi-VN", {hour: '2-digit', minute:'2-digit'})}</div>
-                         {req.message && <div style={{ fontSize: 14, color: "#334155", fontStyle: "italic", background: "#f8fafc", padding: 8, borderRadius: 6, mt: 8 }}>"{req.message}"</div>}
+                         {req.message && <div style={{ fontSize: 14, color: "#334155", fontStyle: "italic", background: "#f8fafc", padding: 8, borderRadius: 6, marginTop: 8 }}>"{req.message}"</div>}
                        </div>
                      ))}
                    </div>
