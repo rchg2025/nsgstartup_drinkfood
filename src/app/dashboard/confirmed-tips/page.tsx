@@ -1,10 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { formatCurrency } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 
 export default function ConfirmedTipsPage() {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  const { data: session } = useSession();
+  const role = (session?.user as any)?.role || "";
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -30,6 +34,28 @@ export default function ConfirmedTipsPage() {
     setEndDate(ymd);
     fetchConfirmedTips();
   }, []);
+
+  const handleDeleteAllTips = async () => {
+    if (!confirm("Bạn có CHẮC CHẮN muốn xóa TẤT CẢ danh sách tiền tip không?")) return;
+    try {
+      await fetch("/api/song-requests?onlyTips=true", { method: "DELETE" });
+      fetchConfirmedTips();
+    } catch (e) {
+      alert("Lỗi khi xóa tất cả");
+    }
+  };
+
+  const handleDeleteTip = async (id: string) => {
+    if (!confirm("Bạn có chắc chắn muốn xóa lượt Tip này không?")) return;
+    setProcessingId(id);
+    try {
+      await fetch(`/api/song-requests/${id}`, { method: "DELETE" });
+      fetchConfirmedTips();
+    } catch (e) {
+      alert("Lỗi khi xóa");
+    }
+    setProcessingId(null);
+  };
 
   if (loading) return <div style={{ padding: 24 }}>⏳ Đang tải dữ liệu...</div>;
 
@@ -58,11 +84,19 @@ export default function ConfirmedTipsPage() {
   const countTip = filteredRequests.length;
 
   return (
-    <div style={{ padding: 24 }}>
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--primary)", marginBottom: 8 }}>💰 Quản lý Tiền Tip</h1>
-        <p style={{ color: "#64748b" }}>Thống kê và quản lý các khoản tiền bồi dưỡng từ khách hàng.</p>
+    <div style={{ padding: 24, paddingBottom: 60 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--primary)" }}>💵 Quản lý Tiền Tip</h1>
+        <div style={{ display: "flex", gap: 8 }}>
+          {role === "ADMIN" && (
+            <button className="btn" style={{ background: "#ef4444", color: "#fff", padding: "8px 16px", borderRadius: 8, fontWeight: 600, border: "none" }} onClick={handleDeleteAllTips}>
+              🗑️ Xóa danh sách
+            </button>
+          )}
+          <button className="btn btn-secondary" onClick={fetchConfirmedTips}>🔄 Làm mới</button>
+        </div>
       </div>
+      <p style={{ color: "#64748b", marginBottom: 24 }}>Thống kê và quản lý các khoản tiền bồi dưỡng từ khách hàng.</p>
 
       {/* Stats Cards */}
       <div style={{ display: "flex", gap: 16, marginBottom: 24, flexWrap: "wrap" }}>
@@ -125,12 +159,15 @@ export default function ConfirmedTipsPage() {
                 <th style={{ padding: "16px 20px", color: "#475569", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #e2e8f0" }}>Bài hát</th>
                 <th style={{ padding: "16px 20px", color: "#475569", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #e2e8f0" }}>Tài khoản gửi</th>
                 <th style={{ padding: "16px 20px", color: "#475569", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #e2e8f0", textAlign: "right" }}>Số tiền</th>
+                {role === "ADMIN" && (
+                  <th style={{ padding: "16px 20px", color: "#475569", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #e2e8f0", textAlign: "center", width: 80 }}>Xóa</th>
+                )}
               </tr>
             </thead>
             <tbody>
               {filteredRequests.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ padding: 40, textAlign: "center", color: "#64748b" }}>Không có dữ liệu phù hợp với bộ lọc</td>
+                  <td colSpan={role === "ADMIN" ? 7 : 6} style={{ padding: 40, textAlign: "center", color: "#64748b" }}>Không có dữ liệu phù hợp với bộ lọc</td>
                 </tr>
               ) : (
                 filteredRequests.map((req, index) => (
@@ -153,6 +190,17 @@ export default function ConfirmedTipsPage() {
                     <td style={{ padding: "16px 20px", borderBottom: "1px solid #e2e8f0", fontSize: 15, fontWeight: 700, color: "#10b981", textAlign: "right" }}>
                       {formatCurrency(req.tipAmount || 0)}
                     </td>
+                    {role === "ADMIN" && (
+                      <td style={{ padding: "16px 20px", borderBottom: "1px solid #e2e8f0", textAlign: "center" }}>
+                        <button 
+                          onClick={() => handleDeleteTip(req.id)}
+                          disabled={processingId === req.id}
+                          style={{ padding: "6px 10px", borderRadius: 6, border: "none", background: "#fee2e2", color: "#ef4444", cursor: processingId === req.id ? "not-allowed" : "pointer", fontWeight: 600, fontSize: 12 }}
+                        >
+                          {processingId === req.id ? "..." : "🗑️"}
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}

@@ -58,7 +58,17 @@ export async function DELETE(req: NextRequest) {
   }
 
   try {
-    await prisma.songRequest.deleteMany({});
+    const { searchParams } = new URL(req.url);
+    const onlyTips = searchParams.get("onlyTips") === "true";
+
+    if (onlyTips) {
+      await prisma.songRequest.deleteMany({
+        where: { isTipReceived: true }
+      });
+    } else {
+      await prisma.songRequest.deleteMany({});
+    }
+    
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(error);
