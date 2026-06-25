@@ -83,6 +83,39 @@ export default function ConfirmedTipsPage() {
   const totalTip = filteredRequests.reduce((sum, req) => sum + (req.tipAmount || 0), 0);
   const countTip = filteredRequests.length;
 
+  const handleExportExcel = () => {
+    if (filteredRequests.length === 0) {
+      alert("Không có dữ liệu để xuất");
+      return;
+    }
+    
+    const bom = "\uFEFF";
+    const headers = ["STT", "Thời gian nhận", "Khách hàng", "Bài hát", "Người xác nhận", "Số tiền (VNĐ)"];
+    const rows = filteredRequests.map((req, index) => [
+      index + 1,
+      new Date(req.tipReceivedAt).toLocaleString("vi-VN"),
+      req.requesterName || "Khách ẩn danh",
+      req.songName || "Không chỉ định",
+      req.tipSenderAccount || "-",
+      req.tipAmount || 0
+    ]);
+    
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+    
+    const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `DanhSachTip_${startDate}_den_${endDate}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div style={{ padding: 24, paddingBottom: 60 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
@@ -93,6 +126,9 @@ export default function ConfirmedTipsPage() {
               🗑️ Xóa danh sách
             </button>
           )}
+          <button className="btn" style={{ background: "#10b981", color: "#fff", padding: "8px 16px", borderRadius: 8, fontWeight: 600, border: "none" }} onClick={handleExportExcel}>
+            📊 Xuất Excel
+          </button>
           <button className="btn btn-secondary" onClick={fetchConfirmedTips}>🔄 Làm mới</button>
         </div>
       </div>
