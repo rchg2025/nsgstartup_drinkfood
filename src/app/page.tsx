@@ -1304,9 +1304,10 @@ export default function PublicOrderingPage() {
                             onClick={() => {
                               const amount = srTipAmount === "other" ? srOtherTipAmount : srTipAmount;
                               const addInfo = encodeURIComponent(`Tip cho Band ${srRequester}`);
-                              window.location.href = `https://dl.vietqr.io/pay?app=&ba=${bankSettings.band_bank_account}@${bankSettings.band_bank_code}&am=${amount}&addInfo=${addInfo}`;
+                              const dlUrl = `https://dl.vietqr.io/pay?ba=${bankSettings.band_bank_account}@${bankSettings.band_bank_code}&am=${amount}&tn=${addInfo}`;
+                              window.open(dlUrl, "_blank");
                             }}
-                            style={{ padding: "8px 16px", borderRadius: 8, background: "var(--primary)", color: "white", fontWeight: 600, fontSize: 14, border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}
+                            style={{ padding: "8px 16px", borderRadius: 8, background: "#10b981", color: "white", fontWeight: 600, fontSize: 14, border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}
                           >
                             💸 Chuyển ngay
                           </button>

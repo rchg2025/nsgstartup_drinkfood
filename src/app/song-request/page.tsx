@@ -284,9 +284,10 @@ export default function SongRequestPage() {
                             onClick={() => {
                               const amount = srTipAmount === "other" ? srOtherTipAmount : srTipAmount;
                               const addInfo = encodeURIComponent(`Tip cho Band ${srRequester}`);
-                              window.location.href = `https://dl.vietqr.io/pay?app=&ba=${bankSettings.band_bank_account}@${bankSettings.band_bank_code}&am=${amount}&addInfo=${addInfo}`;
+                              const dlUrl = `https://dl.vietqr.io/pay?ba=${bankSettings.band_bank_account}@${bankSettings.band_bank_code}&am=${amount}&tn=${addInfo}`;
+                              window.open(dlUrl, "_blank");
                             }}
-                            style={{ padding: "12px 20px", borderRadius: 10, background: "var(--primary)", color: "white", fontWeight: 700, fontSize: 15, border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
+                            style={{ padding: "12px 20px", borderRadius: 10, background: "#10b981", color: "white", fontWeight: 700, fontSize: 15, border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
                           >
                             💸 Chuyển ngay
                           </button>
