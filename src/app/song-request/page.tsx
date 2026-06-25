@@ -111,6 +111,15 @@ export default function SongRequestPage() {
       });
       if (res.ok) {
         setSrSuccess(true);
+        setSrMessage("");
+        setSrSongName("");
+        setSrRequester("");
+        setSrHasTip(false);
+        setSrTipAmount(10000);
+        setSrOtherTipAmount("");
+        setTimeout(() => {
+          setSrSuccess(false);
+        }, 3000);
       } else {
         const data = await res.json();
         alert("Lỗi: " + data.error);
@@ -250,7 +259,8 @@ export default function SongRequestPage() {
               <div style={{ textAlign: "center", padding: "40px 0" }}>
                 <div style={{ fontSize: 64, marginBottom: 20 }}>🎸</div>
                 <h3 style={{ fontSize: 24, fontWeight: 700, color: "var(--primary)", marginBottom: 12 }}>Gửi yêu cầu thành công!</h3>
-                <p style={{ color: "#64748b", marginBottom: 32, fontSize: 16 }}>Band nhạc đã nhận được yêu cầu của bạn và sẽ sớm phản hồi.</p>
+                <p style={{ color: "#64748b", marginBottom: 8, fontSize: 16 }}>Band nhạc đã nhận được yêu cầu của bạn và sẽ sớm phản hồi.</p>
+                <p style={{ color: "#94a3b8", marginBottom: 32, fontSize: 14 }}>Tự động quay lại màn hình tạo yêu cầu sau 3 giây...</p>
                 <button 
                   style={{ padding: "14px 24px", background: "var(--primary)", color: "white", border: "none", borderRadius: 8, fontWeight: 600, fontSize: 16, cursor: "pointer", width: "100%", maxWidth: 300 }}
                   onClick={() => { setSrSuccess(false); setSrActiveTab("list"); }}
