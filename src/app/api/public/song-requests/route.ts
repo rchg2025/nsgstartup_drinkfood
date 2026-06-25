@@ -10,6 +10,7 @@ export async function GET() {
         songName: true,
         requesterName: true,
         status: true,
+        rejectReason: true,
         createdAt: true,
       },
       orderBy: {

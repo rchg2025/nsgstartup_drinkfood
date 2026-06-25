@@ -127,7 +127,7 @@ export default function SongRequestPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#f8fafc", padding: "20px 10px", display: "flex", justifyContent: "center", alignItems: "flex-start", fontFamily: "var(--font-geist-sans)" }}>
-      <div style={{ width: "100%", maxWidth: 800, background: "#fff", borderRadius: 16, boxShadow: "0 10px 25px rgba(0,0,0,0.05)", padding: 24, display: "flex", flexDirection: "column" }}>
+      <div style={{ width: "100%", maxWidth: 1200, background: "#fff", borderRadius: 16, boxShadow: "0 10px 25px rgba(0,0,0,0.05)", padding: 24, display: "flex", flexDirection: "column" }}>
         
         <div style={{ marginBottom: 24, textAlign: "center" }}>
           <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--primary)" }}>🎵 Yêu cầu bài hát</h2>
