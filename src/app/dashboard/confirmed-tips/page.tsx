@@ -157,7 +157,7 @@ export default function ConfirmedTipsPage() {
                 <th style={{ padding: "16px 20px", color: "#475569", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #e2e8f0" }}>Thời gian nhận</th>
                 <th style={{ padding: "16px 20px", color: "#475569", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #e2e8f0" }}>Khách hàng</th>
                 <th style={{ padding: "16px 20px", color: "#475569", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #e2e8f0" }}>Bài hát</th>
-                <th style={{ padding: "16px 20px", color: "#475569", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #e2e8f0" }}>Tài khoản gửi</th>
+                <th style={{ padding: "16px 20px", color: "#475569", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #e2e8f0" }}>Người xác nhận</th>
                 <th style={{ padding: "16px 20px", color: "#475569", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #e2e8f0", textAlign: "right" }}>Số tiền</th>
                 {role === "ADMIN" && (
                   <th style={{ padding: "16px 20px", color: "#475569", fontWeight: 600, fontSize: 14, borderBottom: "1px solid #e2e8f0", textAlign: "center", width: 80 }}>Xóa</th>

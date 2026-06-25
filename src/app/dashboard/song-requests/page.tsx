@@ -64,7 +64,7 @@ export default function SongRequestsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           isTipReceived: true,
-          tipSenderAccount: "Xác nhận nhanh",
+          tipSenderAccount: (session?.user as any)?.name || "Band nhạc",
           tipReceivedAt: new Date().toISOString()
         })
       });
