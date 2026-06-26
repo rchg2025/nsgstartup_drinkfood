@@ -353,10 +353,11 @@
   
   .navItem {
     flex-direction: column;
-    padding: 8px 4px;
+    padding: 8px 12px;
     gap: 4px;
     flex: 0 0 auto;
-    width: 72px;
+    width: max-content;
+    min-width: 72px;
     justify-content: center;
     text-align: center;
     background: transparent !important;
@@ -373,8 +374,6 @@
   .navLabel {
     font-size: 10px;
     white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
   }
   
   .activeDot { display: none; }

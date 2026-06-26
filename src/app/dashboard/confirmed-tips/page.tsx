@@ -120,7 +120,7 @@ export default function ConfirmedTipsPage() {
     <div style={{ padding: 24, paddingBottom: 60 }}>
       <div className="page-header">
         <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--primary)" }}>💵 Quản lý Tiền Tip</h1>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {role === "ADMIN" && (
             <button className="btn" style={{ background: "#ef4444", color: "#fff", padding: "8px 16px", borderRadius: 8, fontWeight: 600, border: "none" }} onClick={handleDeleteAllTips}>
               🗑️ Xóa danh sách
