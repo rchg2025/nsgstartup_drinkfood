@@ -67,6 +67,7 @@ export async function POST(req: NextRequest) {
       requestBody: fileMetadata,
       media: media,
       fields: "id",
+      supportsAllDrives: true,
     });
 
     const fileId = uploadRes.data.id;
@@ -77,6 +78,7 @@ export async function POST(req: NextRequest) {
     // 5. Phân quyền cho file thành public để ai cũng xem được (avatar mà)
     await drive.permissions.create({
       fileId: fileId,
+      supportsAllDrives: true,
       requestBody: {
         role: "reader",
         type: "anyone",
