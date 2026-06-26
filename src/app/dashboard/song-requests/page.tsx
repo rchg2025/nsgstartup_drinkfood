@@ -104,7 +104,7 @@ export default function SongRequestsPage() {
 
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, alignItems: "flex-start", marginBottom: 24 }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--primary)" }}>🎵 Yêu cầu bài hát từ khách hàng</h1>
         <div style={{ display: "flex", gap: 8 }}>
           {role === "ADMIN" && (
