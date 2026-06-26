@@ -543,12 +543,7 @@ export default function POSPage() {
           </button>
         </div>
 
-        {/* Bottom toolbar */}
-        <div className={styles.bottomToolbar}>
-          <button className={styles.toolbarBtn}>🍴</button>
-          <button className={styles.toolbarBtn}>⭐</button>
-          <button className={styles.toolbarBtn}>⚙️</button>
-        </div>
+
       </div>
 
       {/* Floating Cart Button */}
