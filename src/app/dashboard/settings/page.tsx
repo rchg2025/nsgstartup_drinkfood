@@ -14,9 +14,15 @@ export default function SettingsPage() {
   const [gdriveClientEmail, setGdriveClientEmail] = useState("");
   const [gdrivePrivateKey, setGdrivePrivateKey] = useState("");
   const [gdriveFolderId, setGdriveFolderId] = useState("");
+  const [smtpHost, setSmtpHost] = useState("smtp.gmail.com");
+  const [smtpPort, setSmtpPort] = useState("465");
+  const [smtpFromName, setSmtpFromName] = useState("");
+  const [smtpUser, setSmtpUser] = useState("");
+  const [smtpPass, setSmtpPass] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [testingEmail, setTestingEmail] = useState(false);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -33,6 +39,11 @@ export default function SettingsPage() {
         if (data.gdrive_client_email) setGdriveClientEmail(data.gdrive_client_email);
         if (data.gdrive_private_key) setGdrivePrivateKey(data.gdrive_private_key);
         if (data.gdrive_folder_id) setGdriveFolderId(data.gdrive_folder_id);
+        if (data.smtp_host) setSmtpHost(data.smtp_host);
+        if (data.smtp_port) setSmtpPort(data.smtp_port);
+        if (data.smtp_from_name) setSmtpFromName(data.smtp_from_name);
+        if (data.smtp_user) setSmtpUser(data.smtp_user);
+        if (data.smtp_pass) setSmtpPass(data.smtp_pass);
       } catch (e) {
         console.error(e);
       }
@@ -59,6 +70,11 @@ export default function SettingsPage() {
           gdrive_client_email: gdriveClientEmail,
           gdrive_private_key: gdrivePrivateKey,
           gdrive_folder_id: gdriveFolderId,
+          smtp_host: smtpHost,
+          smtp_port: smtpPort,
+          smtp_from_name: smtpFromName,
+          smtp_user: smtpUser,
+          smtp_pass: smtpPass,
         }),
       });
       if (res.ok) {
@@ -114,6 +130,32 @@ export default function SettingsPage() {
     } catch (err) {
       // Not a valid JSON, just ignore
     }
+  };
+
+  const handleTestEmail = async () => {
+    setTestingEmail(true);
+    try {
+      const res = await fetch("/api/settings/test-smtp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          host: smtpHost,
+          port: smtpPort,
+          user: smtpUser,
+          pass: smtpPass,
+          fromName: smtpFromName,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert("✅ Đã gửi email test thành công! Vui lòng kiểm tra hộp thư của bạn.");
+      } else {
+        alert(`❌ Lỗi gửi email: \n${data.error}`);
+      }
+    } catch (err: any) {
+      alert(`❌ Lỗi kết nối: ${err.message}`);
+    }
+    setTestingEmail(false);
   };
 
   if (loading) {
@@ -359,10 +401,99 @@ export default function SettingsPage() {
           )}
 
           {activeTab === "email" && (
-            <div className="empty-state">
-              <div className="empty-state-icon">✉️</div>
-              <div className="empty-state-title">Cấu hình Email (SMTP)</div>
-              <p style={{ color: "var(--text-secondary)", fontSize: 14, marginTop: 8 }}>Tính năng đang được phát triển.</p>
+            <div style={{ padding: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+                <span style={{ fontSize: 24 }}>⚙️</span>
+                <h2 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Máy chủ gửi Email</h2>
+              </div>
+
+              <div style={{ backgroundColor: "#EFF6FF", padding: 16, borderRadius: 8, marginBottom: 24, border: "1px solid #BFDBFE" }}>
+                <div style={{ fontWeight: 600, color: "#1E3A8A", marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
+                  <span>✉️</span> Hướng dẫn cấu hình Gmail
+                </div>
+                <ul style={{ margin: 0, paddingLeft: 24, color: "#1E40AF", fontSize: 13, lineHeight: 1.6 }}>
+                  <li><b>SMTP Host:</b> smtp.gmail.com</li>
+                  <li><b>SMTP Port:</b> 465 (hoặc 587)</li>
+                  <li><b>Tài khoản Email:</b> Email Gmail của bạn (VD: admin@gmail.com).</li>
+                  <li><b>Mật khẩu:</b> <b>Mật khẩu ứng dụng</b> (App Password) - Không dùng mật khẩu đăng nhập. Xem hướng dẫn tạo tại tài khoản Google.</li>
+                </ul>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 24 }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label">SMTP Host</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="smtp.gmail.com"
+                    value={smtpHost}
+                    onChange={(e) => setSmtpHost(e.target.value)}
+                  />
+                </div>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label">SMTP Port</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="465"
+                    value={smtpPort}
+                    onChange={(e) => setSmtpPort(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Email gửi đi (Từ ai?)</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="Ví dụ: Device Manager Nam Sai Gon"
+                  value={smtpFromName}
+                  onChange={(e) => setSmtpFromName(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Tài khoản Email (Username)</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="Ví dụ: chuyendoiso@nsgpc.edu.vn"
+                  value={smtpUser}
+                  onChange={(e) => setSmtpUser(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Mật khẩu (App Password)</label>
+                <input
+                  type="password"
+                  className="form-input"
+                  placeholder="••••••••••••••••"
+                  value={smtpPass}
+                  onChange={(e) => setSmtpPass(e.target.value)}
+                />
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 12, marginTop: 32 }}>
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={handleTestEmail}
+                  disabled={testingEmail}
+                  style={{ backgroundColor: "var(--card-bg)", color: "var(--text)" }}
+                >
+                  {testingEmail ? "⏳ Đang gửi..." : "⚡ Test gửi Email"}
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-primary" 
+                  onClick={() => handleSave()}
+                  disabled={saving}
+                >
+                  {saving ? "⏳ Đang lưu..." : "✓ Lưu cấu hình SMTP"}
+                </button>
+              </div>
             </div>
           )}
         </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { sendLowStockEmail, sendOutOfStockEmail } from "@/lib/email";
 
 export async function GET(req: NextRequest) {
   try {
@@ -220,12 +221,22 @@ export async function POST(req: NextRequest) {
     // Deduct stock quantity
     for (const item of body.items) {
       try {
-        await prisma.product.update({
+        const oldProduct = await prisma.product.findUnique({ where: { id: item.productId } });
+        
+        const updatedProduct = await prisma.product.update({
           where: { id: item.productId },
           data: {
             stockQuantity: { decrement: item.quantity }
           }
         });
+
+        if (oldProduct && updatedProduct) {
+          if (oldProduct.stockQuantity > 10 && updatedProduct.stockQuantity <= 10 && updatedProduct.stockQuantity > 0) {
+            sendLowStockEmail(updatedProduct.name, updatedProduct.stockQuantity).catch(console.error);
+          } else if (oldProduct.stockQuantity > 0 && updatedProduct.stockQuantity <= 0) {
+            sendOutOfStockEmail(updatedProduct.name).catch(console.error);
+          }
+        }
       } catch (e) {
         console.error("Failed to deduct stock for product: ", item.productId);
       }
