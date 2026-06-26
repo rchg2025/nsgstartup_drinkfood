@@ -33,13 +33,13 @@ export async function POST(req: NextRequest) {
 
     // Get admin email to send the test email
     const admins = await prisma.user.findMany({
-      where: { role: "ADMIN", active: true, email: { not: "" } },
-      select: { email: true }
+      where: { role: "ADMIN", active: true, contactEmail: { not: null } },
+      select: { contactEmail: true }
     });
     
     let toEmail = user; // Fallback to send to itself
-    if (admins.length > 0) {
-      toEmail = admins[0].email;
+    if (admins.length > 0 && admins[0].contactEmail) {
+      toEmail = admins[0].contactEmail;
     }
 
     await transporter.sendMail({

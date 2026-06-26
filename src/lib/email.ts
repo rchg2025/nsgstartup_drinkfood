@@ -39,10 +39,10 @@ export async function createTransporter() {
 // Lấy danh sách email của Admin
 async function getAdminEmails() {
   const admins = await prisma.user.findMany({
-    where: { role: "ADMIN", active: true, email: { not: "" } },
-    select: { email: true }
+    where: { role: "ADMIN", active: true, contactEmail: { not: null } },
+    select: { contactEmail: true }
   });
-  return admins.map(a => a.email).filter(Boolean);
+  return admins.map(a => a.contactEmail).filter(Boolean);
 }
 
 export async function sendLowStockEmail(productName: string, stockQuantity: number) {

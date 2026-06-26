@@ -11,7 +11,7 @@ export default function StaffPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editUser, setEditUser] = useState<any>(null);
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "CASHIER", active: true });
+  const [form, setForm] = useState({ name: "", email: "", contactEmail: "", password: "", role: "CASHIER", active: true });
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState("");
 
@@ -28,13 +28,13 @@ export default function StaffPage() {
 
   const openCreate = () => {
     setEditUser(null);
-    setForm({ name: "", email: "", password: "", role: "CASHIER", active: true });
+    setForm({ name: "", email: "", contactEmail: "", password: "", role: "CASHIER", active: true });
     setShowModal(true);
   };
 
   const openEdit = (user: any) => {
     setEditUser(user);
-    setForm({ name: user.name, email: user.email, password: "", role: user.role, active: user.active });
+    setForm({ name: user.name, email: user.email, contactEmail: user.contactEmail || "", password: "", role: user.role, active: user.active });
     setShowModal(true);
   };
 
@@ -45,7 +45,7 @@ export default function StaffPage() {
     try {
       const isEdit = !!editUser;
       const url = isEdit ? `/api/users/${editUser.id}` : "/api/users";
-      const body: any = { name: form.name, email: form.email, role: form.role, active: form.active };
+      const body: any = { name: form.name, email: form.email, contactEmail: form.contactEmail, role: form.role, active: form.active };
       if (!isEdit || form.password) body.password = form.password;
       const res = await fetch(url, { method: isEdit ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
@@ -178,6 +178,10 @@ export default function StaffPage() {
             <div className="form-group">
               <label className="form-label">Tên đăng nhập *</label>
               <input className="form-input" type="text" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="nguyen_van_a hoặc a@nsg.vn" disabled={!!editUser} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Email nhận thông báo (Tùy chọn)</label>
+              <input className="form-input" type="email" value={form.contactEmail} onChange={(e) => setForm({ ...form, contactEmail: e.target.value })} placeholder="Dùng để nhận cảnh báo kho (chỉ dành cho Admin)" />
             </div>
             <div className="form-group">
               <label className="form-label">{editUser ? "Mật khẩu mới (bỏ trống để giữ nguyên)" : "Mật khẩu *"}</label>

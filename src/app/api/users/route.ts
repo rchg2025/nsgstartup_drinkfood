@@ -17,7 +17,7 @@ export async function GET() {
         ]
       },
       select: {
-        id: true, name: true, email: true, role: true, active: true, createdAt: true, avatar: true,
+        id: true, name: true, email: true, contactEmail: true, role: true, active: true, createdAt: true, avatar: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -39,10 +39,11 @@ export async function POST(req: NextRequest) {
       data: {
         name: body.name,
         email: body.email,
+        contactEmail: body.contactEmail || null,
         password: hashedPassword,
         role: body.role || "CASHIER",
       },
-      select: { id: true, name: true, email: true, role: true, active: true, createdAt: true },
+      select: { id: true, name: true, email: true, contactEmail: true, role: true, active: true, createdAt: true },
     });
 
     await prisma.activityLog.create({

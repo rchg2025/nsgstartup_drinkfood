@@ -16,13 +16,16 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       role: body.role,
       active: body.active,
     };
+    if (body.contactEmail !== undefined) {
+      updateData.contactEmail = body.contactEmail || null;
+    }
     if (body.password) {
       updateData.password = await bcrypt.hash(body.password, 10);
     }
     const user = await prisma.user.update({
       where: { id },
       data: updateData,
-      select: { id: true, name: true, email: true, role: true, active: true, createdAt: true },
+      select: { id: true, name: true, email: true, contactEmail: true, role: true, active: true, createdAt: true },
     });
 
     await prisma.activityLog.create({
