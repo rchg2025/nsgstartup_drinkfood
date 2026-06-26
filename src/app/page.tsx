@@ -992,11 +992,11 @@ export default function PublicOrderingPage() {
                   
                   <div style={{ display: "flex", gap: 12 }}>
                     <div style={{ flex: 1, background: "white", padding: 12, borderRadius: 8, textAlign: "center" }}>
-                      <div style={{ fontSize: 24, fontWeight: 800, color: "var(--purple)" }}>{lookupResult.currentPoints}</div>
+                      <div style={{ fontSize: 24, fontWeight: 800, color: "var(--purple)" }}>{lookupResult.currentPoints.toLocaleString("vi-VN")}</div>
                       <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>Điểm hiện tại</div>
                     </div>
                     <div style={{ flex: 1, background: "white", padding: 12, borderRadius: 8, textAlign: "center" }}>
-                      <div style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)" }}>{lookupResult.totalPoints}</div>
+                      <div style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)" }}>{lookupResult.totalPoints.toLocaleString("vi-VN")}</div>
                       <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>Điểm tích lũy</div>
                     </div>
                   </div>
@@ -1017,7 +1017,7 @@ export default function PublicOrderingPage() {
                             </div>
                           </div>
                           <div style={{ fontWeight: 700, fontSize: 16, color: log.action === "EARN" ? "var(--green)" : "var(--red)" }}>
-                            {log.action === "EARN" ? "+" : "-"}{log.points}
+                            {log.action === "EARN" ? "+" : "-"}{log.points.toLocaleString("vi-VN")}
                           </div>
                         </div>
                       ))}
