@@ -136,6 +136,7 @@ export default function PublicOrderingPage() {
   const [lookupLoading, setLookupLoading] = useState(false);
   const [lookupResult, setLookupResult] = useState<any>(null);
   const [lookupError, setLookupError] = useState("");
+  const [pointLogsPage, setPointLogsPage] = useState(1);
 
   const [pageLoading, setPageLoading] = useState(true);
 
@@ -370,6 +371,7 @@ export default function PublicOrderingPage() {
       const data = await res.json();
       if (res.ok) {
         setLookupResult(data);
+        setPointLogsPage(1);
       } else {
         setLookupResult(null);
         setLookupError(data.error || "Không tìm thấy khách hàng.");
@@ -1004,21 +1006,64 @@ export default function PublicOrderingPage() {
                 {lookupResult.pointLogs?.length === 0 ? (
                   <div style={{ textAlign: "center", padding: 20, color: "var(--text-muted)" }}>Chưa có lịch sử.</div>
                 ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    {lookupResult.pointLogs?.map((log: any) => (
-                      <div key={log.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 12, border: "1px solid var(--border)", borderRadius: 8 }}>
-                        <div>
-                          <div style={{ fontWeight: 600, fontSize: 14 }}>{log.note || (log.action === "EARN" ? "Tích điểm HĐ" : "Đổi Quà")}</div>
-                          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
-                            {new Date(log.createdAt).toLocaleString("vi-VN")}
+                  <>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {lookupResult.pointLogs?.slice((pointLogsPage - 1) * 10, pointLogsPage * 10).map((log: any) => (
+                        <div key={log.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: 12, border: "1px solid var(--border)", borderRadius: 8 }}>
+                          <div>
+                            <div style={{ fontWeight: 600, fontSize: 14 }}>{log.note || (log.action === "EARN" ? "Tích điểm HĐ" : "Đổi Quà")}</div>
+                            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
+                              {new Date(log.createdAt).toLocaleString("vi-VN")}
+                            </div>
+                          </div>
+                          <div style={{ fontWeight: 700, fontSize: 16, color: log.action === "EARN" ? "var(--green)" : "var(--red)" }}>
+                            {log.action === "EARN" ? "+" : "-"}{log.points}
                           </div>
                         </div>
-                        <div style={{ fontWeight: 700, fontSize: 16, color: log.action === "EARN" ? "var(--green)" : "var(--red)" }}>
-                          {log.action === "EARN" ? "+" : "-"}{log.points}
+                      ))}
+                    </div>
+                    {lookupResult.pointLogs?.length > 10 && (
+                      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 16, marginTop: 20 }}>
+                        <button
+                          type="button"
+                          disabled={pointLogsPage === 1}
+                          onClick={() => setPointLogsPage(p => Math.max(1, p - 1))}
+                          style={{
+                            padding: "6px 16px",
+                            borderRadius: 20,
+                            border: "1px solid var(--border)",
+                            background: pointLogsPage === 1 ? "#f5f5f5" : "white",
+                            color: pointLogsPage === 1 ? "#aaa" : "var(--text-primary)",
+                            cursor: pointLogsPage === 1 ? "not-allowed" : "pointer",
+                            fontWeight: 600,
+                            fontSize: 14
+                          }}
+                        >
+                          Trước
+                        </button>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-secondary)" }}>
+                          Trang {pointLogsPage} / {Math.ceil(lookupResult.pointLogs.length / 10)}
                         </div>
+                        <button
+                          type="button"
+                          disabled={pointLogsPage >= Math.ceil(lookupResult.pointLogs.length / 10)}
+                          onClick={() => setPointLogsPage(p => p + 1)}
+                          style={{
+                            padding: "6px 16px",
+                            borderRadius: 20,
+                            border: "1px solid var(--border)",
+                            background: pointLogsPage >= Math.ceil(lookupResult.pointLogs.length / 10) ? "#f5f5f5" : "white",
+                            color: pointLogsPage >= Math.ceil(lookupResult.pointLogs.length / 10) ? "#aaa" : "var(--text-primary)",
+                            cursor: pointLogsPage >= Math.ceil(lookupResult.pointLogs.length / 10) ? "not-allowed" : "pointer",
+                            fontWeight: 600,
+                            fontSize: 14
+                          }}
+                        >
+                          Sau
+                        </button>
                       </div>
-                    ))}
-                  </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
