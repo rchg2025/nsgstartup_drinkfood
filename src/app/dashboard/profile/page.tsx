@@ -71,7 +71,7 @@ export default function ProfilePage() {
         if (putRes.ok) {
           showToast("✅ Đã cập nhật ảnh đại diện");
           fetchProfile();
-          if (update) update(); // reload session
+          if (update) update({ avatar: data.url }); // reload session
         } else {
           showToast("❌ Lỗi khi cập nhật link ảnh vào hồ sơ");
         }

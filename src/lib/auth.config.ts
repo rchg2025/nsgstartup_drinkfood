@@ -16,8 +16,9 @@ export const authConfig: NextAuthConfig = {
         token.role = (user as any).role;
         token.avatar = (user as any).avatar;
       }
-      if (trigger === "update" && session?.avatar) {
-        token.avatar = session.avatar;
+      if (trigger === "update" && session) {
+        if (session.avatar !== undefined) token.avatar = session.avatar;
+        if (session.name !== undefined) token.name = session.name;
       }
       return token;
     },
