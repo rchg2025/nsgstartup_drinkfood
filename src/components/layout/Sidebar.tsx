@@ -207,10 +207,10 @@ export default function Sidebar() {
         })}
 
         {/* Mobile Only: User Info and Logout */}
-        <div className={`${styles.navItem} ${styles.mobileOnlyShow}`} style={{ pointerEvents: 'none' }}>
+        <Link href="/dashboard/profile" className={`${styles.navItem} ${styles.mobileOnlyShow}`} style={{ textDecoration: 'none' }} onClick={() => setIsCollapsed(true)}>
           <span className={styles.navIcon}>👤</span>
-          <span className={styles.navLabel}>{session?.user?.name || "Tài khoản"}</span>
-        </div>
+          <span className={styles.navLabel}>{session?.user?.name || "Tài khoản"} (Hồ sơ)</span>
+        </Link>
         <button
           className={`${styles.navItem} ${styles.mobileOnlyShow}`}
           onClick={() => signOut({ callbackUrl: "/login" })}
@@ -259,13 +259,15 @@ export default function Sidebar() {
 
         {/* User info */}
         <div className={styles.user}>
-          <div className={styles.userAvatar}>
-            {session?.user?.name?.charAt(0).toUpperCase() || "U"}
-          </div>
-          <div className={styles.userInfo}>
-            <span className={styles.userName}>{session?.user?.name}</span>
-            <span className={styles.userRole}>{getRoleLabel(role)}</span>
-          </div>
+          <Link href="/dashboard/profile" className={styles.userInfoLink} style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, textDecoration: 'none', overflow: 'hidden' }}>
+            <div className={styles.userAvatar}>
+              {session?.user?.name?.charAt(0).toUpperCase() || "U"}
+            </div>
+            <div className={styles.userInfo}>
+              <span className={styles.userName}>{session?.user?.name}</span>
+              <span className={styles.userRole}>{getRoleLabel(role)}</span>
+            </div>
+          </Link>
           <button
             className={styles.logoutBtn}
             onClick={() => signOut({ callbackUrl: "/login" })}
