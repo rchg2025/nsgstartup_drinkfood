@@ -190,9 +190,9 @@ export async function sendDailyReportEmail(data: DailyReportData) {
     `;
 
     await transporter.sendMail({
-      from: \`"\${config.smtp_from_name || "Device Manager"}" <\${config.smtp_user}>\`,
+      from: `"${config.smtp_from_name || "Device Manager"}" <${config.smtp_user}>`,
       to: emails.join(", "),
-      subject: \`[BÁO CÁO] Doanh thu ngày \${data.date}\`,
+      subject: `[BÁO CÁO] Doanh thu ngày ${data.date}`,
       html,
     });
   } catch (error) {
