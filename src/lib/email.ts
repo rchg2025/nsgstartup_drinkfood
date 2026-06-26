@@ -118,3 +118,84 @@ export async function sendOutOfStockEmail(productName: string) {
     console.error("Lỗi khi gửi email Hết hàng:", error);
   }
 }
+
+export interface DailyReportData {
+  date: string;
+  totalRevenue: number;
+  totalOrders: number;
+  totalItems: number;
+  commissions?: {
+    totalCommission: number;
+    totalTips: number;
+  };
+}
+
+export async function sendDailyReportEmail(data: DailyReportData) {
+  try {
+    const config = await getSmtpConfig();
+    const emails = await getAdminEmails();
+    if (emails.length === 0) return;
+
+    const transporter = await createTransporter();
+    
+    let commissionHtml = '';
+    if (data.commissions && (data.commissions.totalCommission > 0 || data.commissions.totalTips > 0)) {
+      commissionHtml = `
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+          <h3 style="margin: 0 0 15px 0; color: #4b5563;">💰 Thu nhập của Band nhạc</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #f3f4f6; color: #6b7280;">Tổng Hoa hồng:</td>
+              <td style="padding: 10px; border-bottom: 1px solid #f3f4f6; text-align: right; font-weight: bold; color: #1f2937;">${data.commissions.totalCommission.toLocaleString('vi-VN')} ₫</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; color: #6b7280;">Tổng Tiền Tips:</td>
+              <td style="padding: 10px; text-align: right; font-weight: bold; color: #10b981;">${data.commissions.totalTips.toLocaleString('vi-VN')} ₫</td>
+            </tr>
+          </table>
+        </div>
+      `;
+    }
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; background-color: #ffffff;">
+        <div style="background-color: #3b82f6; padding: 20px; text-align: center; color: white;">
+          <h2 style="margin: 0;">📊 Báo cáo Doanh thu Hàng ngày</h2>
+          <p style="margin: 5px 0 0 0; opacity: 0.9;">Ngày: ${data.date}</p>
+        </div>
+        <div style="padding: 20px;">
+          <h3 style="margin: 0 0 15px 0; color: #4b5563;">Tổng quan Kinh doanh</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #f3f4f6; color: #6b7280;">Tổng Doanh thu:</td>
+              <td style="padding: 10px; border-bottom: 1px solid #f3f4f6; text-align: right; font-weight: bold; color: #3b82f6; font-size: 18px;">${data.totalRevenue.toLocaleString('vi-VN')} ₫</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #f3f4f6; color: #6b7280;">Số lượng Đơn hàng:</td>
+              <td style="padding: 10px; border-bottom: 1px solid #f3f4f6; text-align: right; font-weight: bold; color: #1f2937;">${data.totalOrders.toLocaleString('vi-VN')}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border-bottom: 1px solid #f3f4f6; color: #6b7280;">Sản phẩm đã bán:</td>
+              <td style="padding: 10px; border-bottom: 1px solid #f3f4f6; text-align: right; font-weight: bold; color: #1f2937;">${data.totalItems.toLocaleString('vi-VN')}</td>
+            </tr>
+          </table>
+
+          ${commissionHtml}
+
+          <div style="margin-top: 30px; padding: 15px; background-color: #f8fafc; border-radius: 6px; font-size: 13px; color: #64748b; text-align: center;">
+            Đây là email tự động từ hệ thống NSG Startup.<br/>Vui lòng không trả lời email này.
+          </div>
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: \`"\${config.smtp_from_name || "Device Manager"}" <\${config.smtp_user}>\`,
+      to: emails.join(", "),
+      subject: \`[BÁO CÁO] Doanh thu ngày \${data.date}\`,
+      html,
+    });
+  } catch (error) {
+    console.error("Lỗi khi gửi báo cáo doanh thu:", error);
+  }
+}
