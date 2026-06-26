@@ -10,10 +10,14 @@ export const authConfig: NextAuthConfig = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
+        token.avatar = (user as any).avatar;
+      }
+      if (trigger === "update" && session?.avatar) {
+        token.avatar = session.avatar;
       }
       return token;
     },
@@ -21,6 +25,7 @@ export const authConfig: NextAuthConfig = {
       if (token) {
         session.user.id = token.id as string;
         (session.user as any).role = token.role;
+        (session.user as any).avatar = token.avatar;
       }
       return session;
     },

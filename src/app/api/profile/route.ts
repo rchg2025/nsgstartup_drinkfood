@@ -58,6 +58,10 @@ export async function PUT(req: NextRequest) {
       updateData.password = await bcrypt.hash(body.password, 10);
     }
 
+    if (body.avatar !== undefined) {
+      updateData.avatar = body.avatar || null;
+    }
+
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
       data: updateData,

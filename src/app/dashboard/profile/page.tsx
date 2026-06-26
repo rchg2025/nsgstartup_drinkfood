@@ -8,6 +8,7 @@ export default function ProfilePage() {
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [toast, setToast] = useState("");
   
   const [profile, setProfile] = useState<any>(null);
@@ -39,6 +40,47 @@ export default function ProfilePage() {
       showToast("Lỗi khi tải thông tin");
     }
     setLoading(false);
+  };
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    showToast("Đang tải ảnh lên Google Drive...");
+    
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      
+      const res = await fetch("/api/upload/avatar", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok && data.url) {
+        // Cập nhật URL avatar vào profile
+        const putRes = await fetch("/api/profile", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ avatar: data.url })
+        });
+        
+        if (putRes.ok) {
+          showToast("✅ Đã cập nhật ảnh đại diện");
+          fetchProfile();
+          if (update) update(); // reload session
+        } else {
+          showToast("❌ Lỗi khi cập nhật link ảnh vào hồ sơ");
+        }
+      } else {
+        showToast("❌ " + (data.error || "Lỗi khi tải ảnh lên"));
+      }
+    } catch (error) {
+      showToast("❌ Lỗi mạng khi tải ảnh");
+    }
+    setUploading(false);
   };
 
   const handleSave = async () => {
@@ -98,18 +140,47 @@ export default function ProfilePage() {
           <h2 style={{ fontSize: 18, marginBottom: 20, borderBottom: "1px solid var(--border)", paddingBottom: 10 }}>Thông tin cơ bản</h2>
           
           <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
-            <div style={{ 
-              width: 80, height: 80, borderRadius: 40, 
-              background: "linear-gradient(135deg, var(--accent), var(--accent-dark))",
-              color: "white", display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 32, fontWeight: "bold"
-            }}>
-              {profile?.name?.charAt(0).toUpperCase() || "U"}
-            </div>
+            <label style={{ cursor: uploading ? "not-allowed" : "pointer", position: "relative", display: "inline-block" }}>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handleUpload} 
+                style={{ display: "none" }} 
+                disabled={uploading}
+              />
+              {profile?.avatar ? (
+                <img 
+                  src={profile.avatar} 
+                  alt="Avatar" 
+                  style={{ 
+                    width: 80, height: 80, borderRadius: 40, objectFit: "cover",
+                    border: "2px solid var(--border)", opacity: uploading ? 0.5 : 1
+                  }} 
+                />
+              ) : (
+                <div style={{ 
+                  width: 80, height: 80, borderRadius: 40, 
+                  background: "linear-gradient(135deg, var(--accent), var(--accent-dark))",
+                  color: "white", display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 32, fontWeight: "bold", opacity: uploading ? 0.5 : 1
+                }}>
+                  {profile?.name?.charAt(0).toUpperCase() || "U"}
+                </div>
+              )}
+              {/* Icon overlay */}
+              <div style={{ 
+                position: "absolute", bottom: 0, right: 0, background: "var(--accent)", color: "white", 
+                width: 24, height: 24, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", 
+                fontSize: 12, border: "2px solid white", pointerEvents: "none"
+              }}>
+                📷
+              </div>
+            </label>
             <div>
               <div style={{ fontWeight: "bold", fontSize: 20 }}>{profile?.name}</div>
               <div style={{ color: "var(--text-secondary)", fontSize: 14 }}>Tài khoản: {profile?.email}</div>
               <span className={`badge badge-${role.toLowerCase()}`} style={{ marginTop: 8 }}>{role}</span>
+              {uploading && <div style={{ fontSize: 12, color: "var(--accent)", marginTop: 4 }}>Đang tải lên...</div>}
             </div>
           </div>
 

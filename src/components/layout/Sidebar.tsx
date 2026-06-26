@@ -260,9 +260,18 @@ export default function Sidebar() {
         {/* User info */}
         <div className={styles.user}>
           <Link href="/dashboard/profile" className={styles.userInfoLink} style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, textDecoration: 'none', overflow: 'hidden' }}>
-            <div className={styles.userAvatar}>
-              {session?.user?.name?.charAt(0).toUpperCase() || "U"}
-            </div>
+            { (session?.user as any)?.avatar ? (
+              <img 
+                src={(session?.user as any)?.avatar} 
+                alt="Avatar" 
+                className={styles.userAvatar} 
+                style={{ objectFit: 'cover', border: 'none', padding: 0 }} 
+              />
+            ) : (
+              <div className={styles.userAvatar}>
+                {session?.user?.name?.charAt(0).toUpperCase() || "U"}
+              </div>
+            )}
             <div className={styles.userInfo}>
               <span className={styles.userName}>{session?.user?.name}</span>
               <span className={styles.userRole}>{getRoleLabel(role)}</span>
