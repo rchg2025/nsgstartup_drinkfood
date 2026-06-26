@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import styles from "./sidebar.module.css";
+import { getDriveImageUrl } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", icon: "📊", label: "Tổng quan", roles: ["ADMIN", "CASHIER", "BARISTA"] },
@@ -262,7 +263,7 @@ export default function Sidebar() {
           <Link href="/dashboard/profile" className={styles.userInfoLink} style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, textDecoration: 'none', overflow: 'hidden' }}>
             { (session?.user as any)?.avatar ? (
               <img 
-                src={(session?.user as any)?.avatar} 
+                src={getDriveImageUrl((session?.user as any)?.avatar)} 
                 alt="Avatar" 
                 className={styles.userAvatar} 
                 style={{ objectFit: 'cover', border: 'none', padding: 0 }} 

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { getDriveImageUrl } from "@/lib/utils";
 
 export default function ProfilePage() {
   const { data: session, update } = useSession();
@@ -150,7 +151,7 @@ export default function ProfilePage() {
               />
               {profile?.avatar ? (
                 <img 
-                  src={profile.avatar} 
+                  src={getDriveImageUrl(profile.avatar)} 
                   alt="Avatar" 
                   style={{ 
                     width: 80, height: 80, borderRadius: 40, objectFit: "cover",

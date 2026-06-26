@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     const getSetting = (k: string) => settings.find(s => s.key === k)?.value;
     const clientEmail = getSetting("gdrive_client_email");
     let privateKey = getSetting("gdrive_private_key");
-    const folderId = getSetting("gdrive_folder_id");
+    let folderId = getSetting("gdrive_folder_id")?.trim();
 
     if (!clientEmail || !privateKey || !folderId) {
       return NextResponse.json({ error: "Google Drive chưa được cấu hình. Vui lòng liên hệ Admin." }, { status: 500 });

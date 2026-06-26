@@ -59,3 +59,12 @@ export function getStatusColor(status: string): string {
   };
   return colors[status] || "#6b7280";
 }
+
+export function getDriveImageUrl(url: string | null | undefined): string {
+  if (!url) return "";
+  const match = url.match(/id=([a-zA-Z0-9_-]+)/);
+  if (match) {
+    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+  }
+  return url;
+}
