@@ -374,6 +374,7 @@
   .navLabel {
     font-size: 10px;
     white-space: nowrap;
+    display: block !important;
   }
   
   .activeDot { display: none; }

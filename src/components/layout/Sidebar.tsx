@@ -208,8 +208,12 @@ export default function Sidebar() {
         })}
 
         {/* Mobile Only: User Info and Logout */}
-        <Link href="/dashboard/profile" className={`${styles.navItem} ${styles.mobileOnlyShow}`} style={{ textDecoration: 'none' }} onClick={() => setIsCollapsed(true)}>
-          <span className={styles.navIcon}>👤</span>
+        <Link href="/dashboard/profile" className={`${styles.navItem} ${styles.mobileOnlyShow}`} style={{ textDecoration: 'none' }} onClick={() => setIsCollapsed(false)}>
+          <span className={styles.navIcon}>
+            {(session?.user as any)?.avatar ? (
+              <img src={getDriveImageUrl((session?.user as any).avatar)} alt="Avatar" style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }} />
+            ) : "👤"}
+          </span>
           <span className={styles.navLabel}>{session?.user?.name || "Tài khoản"} (Hồ sơ)</span>
         </Link>
         <button
