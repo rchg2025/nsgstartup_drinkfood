@@ -955,7 +955,7 @@ export default function PublicOrderingPage() {
       {/* ===== Point Lookup Modal ===== */}
       {isPointModalOpen && (
         <div className="modal-overlay" style={{ zIndex: 400 }} onClick={() => setIsPointModalOpen(false)}>
-          <div className="modal" style={{ maxWidth: 480, height: "80vh", display: "flex", flexDirection: "column" }} onClick={(e) => e.stopPropagation()}>
+          <div className="modal" style={{ maxWidth: 800, height: "80vh", display: "flex", flexDirection: "column" }} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header" style={{ marginBottom: "20px" }}>
               <h2 className="modal-title" style={{ fontSize: "20px", fontWeight: 800 }}>🎁 Tra Cứu Điểm</h2>
               <button className="modal-close" onClick={() => setIsPointModalOpen(false)}>✕</button>
