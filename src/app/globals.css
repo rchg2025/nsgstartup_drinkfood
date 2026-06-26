@@ -514,3 +514,19 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateX(18px);
   background: white;
 }
+
+/* Responsive Page Header */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
