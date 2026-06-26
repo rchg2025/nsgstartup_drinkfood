@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { Readable } from "stream";
+import { PassThrough } from "stream";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -36,15 +36,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Fix escaped newlines in private key
-    privateKey = privateKey.replace(/\\n/g, '\n');
+    if (privateKey.includes("\\n")) {
+      privateKey = privateKey.replace(/\\n/g, "\n");
+    }
 
     // 3. Khởi tạo Google Auth
-    const authClient = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: clientEmail,
-        private_key: privateKey,
-      },
-      scopes: ["https://www.googleapis.com/auth/drive.file"],
+    const authClient = new google.auth.JWT({
+      email: clientEmail,
+      key: privateKey,
+      scopes: ["https://www.googleapis.com/auth/drive"],
     });
 
     const drive = google.drive({ version: "v3", auth: authClient });
@@ -55,9 +55,12 @@ export async function POST(req: NextRequest) {
       parents: [folderId],
     };
 
+    const bufferStream = new PassThrough();
+    bufferStream.end(buffer);
+
     const media = {
-      mimeType: file.type,
-      body: Readable.from(buffer),
+      mimeType: file.type || "application/octet-stream",
+      body: bufferStream,
     };
 
     const uploadRes = await drive.files.create({
