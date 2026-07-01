@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
+    const paymentMethod = searchParams.get("paymentMethod");
     const date = searchParams.get("date");
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
@@ -32,6 +33,7 @@ export async function GET(req: NextRequest) {
     const orders = await prisma.order.findMany({
       where: {
         ...(status ? { status: status as any } : {}),
+        ...(paymentMethod ? { paymentMethod: paymentMethod as any } : {}),
         ...dateFilter,
       },
       include: {

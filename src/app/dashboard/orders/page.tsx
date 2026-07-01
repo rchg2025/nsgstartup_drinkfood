@@ -11,6 +11,7 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState("");
   // Get current date in VN timezone
   const vnDateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
   const [startDate, setStartDate] = useState(vnDateStr);
@@ -31,6 +32,7 @@ export default function OrdersPage() {
     try {
       let url = "/api/orders?";
       if (statusFilter) url += `status=${statusFilter}&`;
+      if (paymentMethodFilter) url += `paymentMethod=${paymentMethodFilter}&`;
       if (startDate) url += `startDate=${startDate}&`;
       if (endDate) url += `endDate=${endDate}`;
       const res = await fetch(url);
@@ -42,7 +44,7 @@ export default function OrdersPage() {
   useEffect(() => { 
     fetchOrders(); 
     setCurrentPage(1);
-  }, [statusFilter, startDate, endDate]);
+  }, [statusFilter, paymentMethodFilter, startDate, endDate]);
 
   // Real-time synchronization
   useEffect(() => {
@@ -75,7 +77,7 @@ export default function OrdersPage() {
 
     const intervalId = setInterval(poll, 10000);
     return () => clearInterval(intervalId);
-  }, [statusFilter, startDate, endDate]); // Safe to re-subscribe if filters change
+  }, [statusFilter, paymentMethodFilter, startDate, endDate]); // Safe to re-subscribe if filters change
 
 
   const updateStatus = async (orderId: string, status: string) => {
@@ -207,6 +209,7 @@ export default function OrdersPage() {
         "Tổng tiền": o.totalAmount,
         "Giảm giá": o.discount,
         "Thành tiền (VNĐ)": o.finalAmount,
+        "PT Thanh toán": getPaymentMethodLabel(o.paymentMethod),
         "Thanh toán": o.paymentStatus === "PAID" ? "Đã thanh toán" : "Chưa thanh toán",
         "Trạng thái": getStatusLabel(o.status),
         "Thời gian": new Date(o.createdAt).toLocaleString("vi-VN"),
@@ -284,6 +287,18 @@ export default function OrdersPage() {
           ) : (
              <button className="btn btn-secondary btn-sm" onClick={() => { setStartDate(vnDateStr); setEndDate(vnDateStr); }}>Hôm nay</button>
           )}
+          <span style={{ fontSize: 13, fontWeight: 500, marginLeft: 8 }}>PT Thanh toán:</span>
+          <select 
+            className="form-input" 
+            value={paymentMethodFilter} 
+            onChange={(e) => setPaymentMethodFilter(e.target.value)}
+            style={{ width: "auto", padding: "4px 8px", fontSize: "13px" }}
+          >
+            <option value="">Tất cả</option>
+            <option value="CASH">Tiền mặt</option>
+            <option value="TRANSFER">Chuyển khoản</option>
+            <option value="CARD">Quẹt thẻ</option>
+          </select>
         </div>
         <div className={styles.statusTabs}>
           {STATUS_OPTIONS.map((s) => (
@@ -356,6 +371,7 @@ export default function OrdersPage() {
                   <th>Khách hàng</th>
                   <th>Món</th>
                   <th>Tổng tiền</th>
+                  <th>PT Thanh toán</th>
                   <th>TT Thanh toán</th>
                   <th>Thu ngân</th>
                   <th>Trạng thái</th>
@@ -379,6 +395,7 @@ export default function OrdersPage() {
                     </td>
                     <td>{order.items?.length || 0} món</td>
                     <td style={{ fontWeight: 700 }}>{formatCurrency(order.finalAmount)}</td>
+                    <td>{getPaymentMethodLabel(order.paymentMethod)}</td>
                     <td>
                       <span style={{
                         fontSize: 12, fontWeight: 600,
