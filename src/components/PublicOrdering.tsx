@@ -58,7 +58,7 @@ export default function PublicOrdering({
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerType, setCustomerType] = useState<"HSSV" | "RETAIL" | null>(fixedCustomerType || null); // HSSV or RETAIL
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(!hideCustomerSelection);
   const [showCustomerTypeModal, setShowCustomerTypeModal] = useState(false);
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
