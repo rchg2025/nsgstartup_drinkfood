@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { formatCurrency } from "@/lib/utils";
+import { getSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 
 interface Product {
@@ -39,6 +41,7 @@ interface CartItem {
 }
 
 export default function PublicOrderingPage() {
+  const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [toppings, setToppings] = useState<Topping[]>([]);
@@ -192,7 +195,14 @@ export default function PublicOrderingPage() {
     setModalQty(1);
   };
 
-  const selectCustomerTypeAndContinue = (type: "HSSV" | "RETAIL") => {
+  const selectCustomerTypeAndContinue = async (type: "HSSV" | "RETAIL") => {
+    if (type === "HSSV") {
+      const session = await getSession();
+      if (!session) {
+        router.push("/login");
+        return;
+      }
+    }
     setCustomerType(type);
     setShowCustomerTypeModal(false);
     if (pendingProduct) {
