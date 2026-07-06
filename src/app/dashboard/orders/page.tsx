@@ -416,14 +416,14 @@ export default function OrdersPage() {
                       {formatDate(order.createdAt)}
                     </td>
                     <td onClick={(e) => e.stopPropagation()}>
-                      <div style={{ display: "flex", gap: 6 }}>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, minWidth: "120px", maxWidth: "180px" }}>
                         {order.status === "PENDING" && (
-                          <button className="btn btn-secondary btn-sm" onClick={() => updateStatus(order.id, "PREPARING")} disabled={updating}>
+                          <button className="btn btn-secondary btn-sm" onClick={() => updateStatus(order.id, "PREPARING")} disabled={updating} style={{ flex: "1 1 calc(50% - 6px)" }}>
                             Pha chế
                           </button>
                         )}
                         {order.status === "READY" && (
-                          <button className="btn btn-primary btn-sm" onClick={() => updateStatus(order.id, "COMPLETED")} disabled={updating}>
+                          <button className="btn btn-primary btn-sm" onClick={() => updateStatus(order.id, "COMPLETED")} disabled={updating} style={{ flex: "1 1 100%" }}>
                             Hoàn thành
                           </button>
                         )}
@@ -432,21 +432,22 @@ export default function OrdersPage() {
                             <button 
                               className="btn btn-secondary btn-sm" 
                               onClick={() => { window.location.href = `/dashboard/pos?editOrderId=${order.id}`; }}
+                              style={{ flex: "1 1 calc(50% - 6px)" }}
                             >
-                              Sửa đơn
+                              Sửa
                             </button>
-                            <button className="btn btn-danger btn-sm" onClick={() => updateStatus(order.id, "CANCELLED")} disabled={updating}>
+                            <button className="btn btn-danger btn-sm" onClick={() => updateStatus(order.id, "CANCELLED")} disabled={updating} style={{ flex: "1 1 calc(50% - 6px)" }}>
                               Hủy
                             </button>
                           </>
                         )}
                         {order.paymentStatus === "PENDING" && order.status !== "CANCELLED" && (
-                          <button className="btn btn-secondary btn-sm" onClick={() => updatePayment(order.id, "PAID")} disabled={updating}>
+                          <button className="btn btn-secondary btn-sm" onClick={() => updatePayment(order.id, "PAID")} disabled={updating} style={{ flex: "1 1 calc(50% - 6px)" }}>
                             💳 TT
                           </button>
                         )}
                         {isAdmin && (
-                          <button className="btn btn-danger btn-sm" onClick={() => deleteOrder(order.id)} disabled={updating} title="Xóa đơn hàng">
+                          <button className="btn btn-danger btn-sm" onClick={() => deleteOrder(order.id)} disabled={updating} title="Xóa đơn hàng" style={{ flex: "0 0 32px", padding: 0 }}>
                             🗑️
                           </button>
                         )}
