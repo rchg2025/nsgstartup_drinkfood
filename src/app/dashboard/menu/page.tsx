@@ -126,6 +126,24 @@ export default function MenuPage() {
     await fetchAll();
   };
 
+  const toggleToppingAvailable = async (topping: any) => {
+    await fetch(`/api/toppings/${topping.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...topping, available: !topping.available, price: Number(topping.price) }),
+    });
+    await fetchAll();
+  };
+
+  const toggleCategoryActive = async (category: any) => {
+    await fetch(`/api/categories/${category.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...category, active: !category.active }),
+    });
+    await fetchAll();
+  };
+
   const addSize = () => setForm((f: any) => ({ ...f, sizes: [...(f.sizes || []), { name: "", priceAdd: 0 }] }));
   const removeSize = (i: number) => setForm((f: any) => ({ ...f, sizes: f.sizes.filter((_: any, idx: number) => idx !== i) }));
   const updateSize = (i: number, key: string, val: any) =>
@@ -303,12 +321,22 @@ export default function MenuPage() {
             <thead><tr><th>STT</th><th>Icon</th><th>Tên danh mục</th><th>Thứ tự hiển thị</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
             <tbody>
               {filteredCategories.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((cat, index) => (
-                <tr key={cat.id}>
+                <tr key={cat.id} className={!cat.active ? styles.unavailable : ""}>
                   <td>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</td>
                   <td style={{ fontSize: 24 }}>{cat.icon}</td>
                   <td><strong>{cat.name}</strong></td>
                   <td>{cat.sortOrder}</td>
-                  <td><span className={`badge ${cat.active ? "badge-completed" : "badge-cancelled"}`}>{cat.active ? "Hiển thị" : "Ẩn"}</span></td>
+                  <td>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <label className="switch" title={cat.active ? "Hiển thị" : "Ẩn"}>
+                        <input type="checkbox" checked={cat.active} onChange={() => toggleCategoryActive(cat)} />
+                        <span className="switch-slider" />
+                      </label>
+                      <span className={`badge ${cat.active ? "badge-completed" : "badge-cancelled"}`}>
+                        {cat.active ? "Hiển thị" : "Ẩn"}
+                      </span>
+                    </div>
+                  </td>
                   <td>
                     <div style={{ display: "flex", gap: 6 }}>
                       <button className="btn btn-secondary btn-sm" onClick={() => openEdit(cat)}>✏️ Sửa</button>
@@ -350,11 +378,21 @@ export default function MenuPage() {
             <thead><tr><th>STT</th><th>Tên topping</th><th>Giá</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
             <tbody>
               {filteredToppings.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((top, index) => (
-                <tr key={top.id}>
+                <tr key={top.id} className={!top.available ? styles.unavailable : ""}>
                   <td>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</td>
                   <td><strong>{top.name}</strong></td>
                   <td style={{ color: "var(--accent)", fontWeight: 600 }}>{formatCurrency(top.price)}</td>
-                  <td><span className={`badge ${top.available ? "badge-completed" : "badge-cancelled"}`}>{top.available ? "Có sẵn" : "Hết"}</span></td>
+                  <td>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <label className="switch" title={top.available ? "Có sẵn" : "Hết"}>
+                        <input type="checkbox" checked={top.available} onChange={() => toggleToppingAvailable(top)} />
+                        <span className="switch-slider" />
+                      </label>
+                      <span className={`badge ${top.available ? "badge-completed" : "badge-cancelled"}`}>
+                        {top.available ? "Có sẵn" : "Hết"}
+                      </span>
+                    </div>
+                  </td>
                   <td>
                     <div style={{ display: "flex", gap: 6 }}>
                       <button className="btn btn-secondary btn-sm" onClick={() => openEdit(top)}>✏️ Sửa</button>
