@@ -728,7 +728,11 @@ export default function PublicOrdering({
                                 boxShadow: selectedTable?.id === table.id ? "0 4px 12px rgba(239, 68, 68, 0.2)" : "none",
                               }}
                             >
-                              <div style={{ fontSize: 24, marginBottom: 4 }}>🪑</div>
+                              <div style={{ marginBottom: 4, display: 'flex', justifyContent: 'center' }}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M4 9h16"/><path d="M5 9v8"/><path d="M19 9v8"/><rect x="2" y="7" width="20" height="2" rx="1"/>
+                                </svg>
+                              </div>
                               <div style={{ fontSize: 13, fontWeight: 700, color: selectedTable?.id === table.id ? "#ef4444" : "var(--text)" }}>{table.name}</div>
                             </div>
                           ))}

@@ -439,7 +439,11 @@ export default function TablesPage() {
                   <tr key={table.id}>
                     <td data-label="Tên bàn">
                       <div className="table-name">
-                        <div className="table-icon">🪑</div>
+                        <div className="table-icon">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M4 9h16"/><path d="M5 9v8"/><path d="M19 9v8"/><rect x="2" y="7" width="20" height="2" rx="1"/>
+                          </svg>
+                        </div>
                         {table.name}
                       </div>
                     </td>
