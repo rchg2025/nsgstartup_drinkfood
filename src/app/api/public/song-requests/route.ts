@@ -3,7 +3,19 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
     const requests = await prisma.songRequest.findMany({
+      where: {
+        createdAt: {
+          gte: startOfDay,
+          lte: endOfDay,
+        }
+      },
       select: {
         id: true,
         message: true,
