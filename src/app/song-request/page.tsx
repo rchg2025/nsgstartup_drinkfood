@@ -1,11 +1,21 @@
 "use client";
 import { useEffect, useState } from "react";
+import { getSession } from "next-auth/react";
 import { formatCurrency } from "@/lib/utils";
 import styles from "../page.module.css";
 
 export default function SongRequestPage() {
   const [bankSettings, setBankSettings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  const handleOrderDrinkClick = async () => {
+    const session = await getSession();
+    if (session) {
+      window.location.href = '/';
+    } else {
+      window.location.href = '/order';
+    }
+  };
 
   const [srMessage, setSrMessage] = useState("");
   const [srSongName, setSrSongName] = useState("");
@@ -146,7 +156,7 @@ export default function SongRequestPage() {
           <button 
             className={styles.sizeBtn} 
             style={{ padding: "6px 12px", borderRadius: 20, fontSize: 13, fontWeight: 700, color: "var(--primary)", border: "1px solid var(--primary)", background: "rgba(239, 68, 68, 0.05)" }}
-            onClick={() => window.location.href = '/'}
+            onClick={handleOrderDrinkClick}
           >
             🥤 Đặt nước
           </button>
