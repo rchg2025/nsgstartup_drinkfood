@@ -218,7 +218,10 @@ export default function Sidebar() {
         </Link>
         <button
           className={`${styles.navItem} ${styles.mobileOnlyShow}`}
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={async () => {
+            await signOut({ redirect: false });
+            window.location.href = "/login";
+          }}
         >
           <span className={styles.navIcon} style={{ color: 'var(--red)' }}>↪</span>
           <span className={styles.navLabel} style={{ color: 'var(--red)' }}>Đăng xuất</span>
@@ -282,13 +285,18 @@ export default function Sidebar() {
               <span className={styles.userRole}>{getRoleLabel(role)}</span>
             </div>
           </Link>
-          <button
-            className={styles.logoutBtn}
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            title="Đăng xuất"
-          >
-            ↪
-          </button>
+          <div className={styles.logoutWrapper}>
+            <button
+              className={styles.logoutBtn}
+              onClick={async () => {
+                await signOut({ redirect: false });
+                window.location.href = "/login";
+              }}
+            >
+              <span className={styles.logoutIcon}>↪</span>
+              {!isCollapsed && <span>Đăng xuất</span>}
+            </button>
+          </div>
         </div>
       </div>
     </aside>

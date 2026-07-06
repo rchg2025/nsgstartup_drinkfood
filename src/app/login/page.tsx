@@ -97,6 +97,14 @@ export default function LoginPage() {
               "Đăng nhập →"
             )}
           </button>
+          
+          <a
+            href="/"
+            className="btn btn-outline btn-lg"
+            style={{ width: "100%", justifyContent: "center", marginTop: "12px", textDecoration: "none", display: "flex", alignItems: "center" }}
+          >
+            ← Về Trang chủ
+          </a>
         </form>
 
 
