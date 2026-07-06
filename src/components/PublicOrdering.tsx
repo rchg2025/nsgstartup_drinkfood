@@ -767,43 +767,49 @@ export default function PublicOrdering({
                 </div>
 
                 {paymentMethod === "TRANSFER" && bankSettings?.bank_code && bankSettings?.bank_account && (
-                  <div style={{ textAlign: "center", marginBottom: "20px", padding: "16px", background: "white", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
-                    <p style={{ fontWeight: 600, color: "var(--red)", marginBottom: 12, fontSize: 13 }}>Quét mã để thanh toán (Hoặc hiển thị lại sau khi đặt)</p>
-                    <img
-                      src={`https://img.vietqr.io/image/${bankSettings.bank_code}-${bankSettings.bank_account}-compact2.png?amount=${finalAmount}&addInfo=Thanh toan don hang NSGSTARTUP ${new Date().toLocaleDateString("vi-VN").replace(/\//g, "")}`}
-                      alt="VietQR"
-                      style={{ width: "200px", height: "200px", objectFit: "contain", margin: "0 auto", display: "block" }}
-                    />
-                    <div style={{ fontWeight: 700, color: "#1e293b", marginTop: 12 }}>{bankSettings.bank_account_name}</div>
-                    <div style={{ fontWeight: 600, color: "#ef4444" }}>{bankSettings.bank_account} - {bankSettings.bank_code}</div>
-                    
-                    <div style={{ marginTop: 12, display: "flex", justifyContent: "center" }}>
-                      <button 
-                        type="button"
-                        onClick={async () => {
-                          const url = `https://img.vietqr.io/image/${bankSettings.bank_code}-${bankSettings.bank_account}-compact2.png?amount=${finalAmount}&addInfo=Thanh toan don hang NSGSTARTUP ${new Date().toLocaleDateString("vi-VN").replace(/\//g, "")}`;
-                          try {
-                            const response = await fetch(url);
-                            const blob = await response.blob();
-                            const blobUrl = window.URL.createObjectURL(blob);
-                            const a = document.createElement("a");
-                            a.href = blobUrl;
-                            a.download = "QR_ThanhToan_DonHang.png";
-                            document.body.appendChild(a);
-                            a.click();
-                            window.URL.revokeObjectURL(blobUrl);
-                            document.body.removeChild(a);
-                          } catch (e) {
-                            console.error("Lỗi khi tải ảnh, mở sang tab mới", e);
-                            window.open(url, "_blank");
-                          }
-                        }}
-                        style={{ padding: "8px 16px", borderRadius: 8, background: "#f8fafc", color: "#334155", fontWeight: 600, fontSize: 13, border: "1px solid #cbd5e1", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
-                      >
-                        ⬇️ Tải mã QR về máy
-                      </button>
-                    </div>
-                  </div>
+                  (() => {
+                    const orderIdPrefix = customerPhone ? customerPhone : new Date().toTimeString().split(' ')[0].replace(/:/g, '');
+                    const urlInfo = `Thanh toan don hang NSGSTARTUP ${orderIdPrefix} ${new Date().toLocaleDateString("vi-VN").replace(/\//g, "")}`;
+                    const qrUrl = `https://img.vietqr.io/image/${bankSettings.bank_code}-${bankSettings.bank_account}-compact2.png?amount=${finalAmount}&addInfo=${encodeURIComponent(urlInfo)}`;
+                    return (
+                      <div style={{ textAlign: "center", marginBottom: "20px", padding: "16px", background: "white", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                        <p style={{ fontWeight: 600, color: "var(--red)", marginBottom: 12, fontSize: 13 }}>Quét mã để thanh toán (Hoặc hiển thị lại sau khi đặt)</p>
+                        <img
+                          src={qrUrl}
+                          alt="VietQR"
+                          style={{ width: "200px", height: "200px", objectFit: "contain", margin: "0 auto", display: "block" }}
+                        />
+                        <div style={{ fontWeight: 700, color: "#1e293b", marginTop: 12 }}>{bankSettings.bank_account_name}</div>
+                        <div style={{ fontWeight: 600, color: "#ef4444" }}>{bankSettings.bank_account} - {bankSettings.bank_code}</div>
+                        
+                        <div style={{ marginTop: 12, display: "flex", justifyContent: "center" }}>
+                          <button 
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                const response = await fetch(qrUrl);
+                                const blob = await response.blob();
+                                const blobUrl = window.URL.createObjectURL(blob);
+                                const a = document.createElement("a");
+                                a.href = blobUrl;
+                                a.download = "QR_ThanhToan_DonHang.png";
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(blobUrl);
+                                document.body.removeChild(a);
+                              } catch (e) {
+                                console.error("Lỗi khi tải ảnh, mở sang tab mới", e);
+                                window.open(qrUrl, "_blank");
+                              }
+                            }}
+                            style={{ padding: "8px 16px", borderRadius: 8, background: "#f8fafc", color: "#334155", fontWeight: 600, fontSize: 13, border: "1px solid #cbd5e1", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                          >
+                            ⬇️ Tải mã QR về máy
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })()
                 )}
 
 
