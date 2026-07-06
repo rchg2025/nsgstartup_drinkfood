@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { formatTime } from "@/lib/utils";
 import { playNewOrder, playStatusChange, playSuccess } from "@/lib/audio";
 import styles from "./kitchen.module.css";
@@ -11,6 +12,9 @@ export default function KitchenPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [recipeModal, setRecipeModal] = useState<{ name: string; recipe: string } | null>(null);
   const ITEMS_PER_PAGE = 20;
+  
+  const { data: session } = useSession();
+  const isAdmin = (session?.user as any)?.role === "ADMIN";
 
   const fetchOrders = async () => {
     try {
@@ -79,6 +83,26 @@ export default function KitchenPage() {
     setUpdating(null);
   };
 
+  const handleCompleteAll = async () => {
+    if (!confirm("Bạn có chắc chắn muốn hoàn thành TẤT CẢ đơn hàng đang chờ không?")) return;
+    setUpdating("all");
+    try {
+      await Promise.all(
+        orders.map(order => 
+          fetch(`/api/orders/${order.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "READY" }),
+          })
+        )
+      );
+      await fetchOrders();
+    } catch {
+      alert("Có lỗi xảy ra khi hoàn thành đồng loạt.");
+    }
+    setUpdating(null);
+  };
+
   const getWaitTime = (createdAt: string) => {
     const diff = Math.floor((Date.now() - new Date(createdAt).getTime()) / 60000);
     if (diff < 1) return "Vừa xong";
@@ -104,6 +128,16 @@ export default function KitchenPage() {
           <p className={styles.kitchenSub}>Auto refresh mỗi 5 giây</p>
         </div>
         <div className={styles.headerRight}>
+          {isAdmin && orders.length > 0 && (
+            <button 
+              className="btn btn-primary btn-sm" 
+              onClick={handleCompleteAll}
+              disabled={!!updating}
+              style={{ background: "var(--green)", color: "white", padding: "4px 12px", height: "32px" }}
+            >
+              {updating === "all" ? <span className="loading-spinner" /> : "✅ Hoàn thành tất cả"}
+            </button>
+          )}
           <div className={styles.liveIndicator}>
             <span className={styles.liveDot} />
             LIVE
