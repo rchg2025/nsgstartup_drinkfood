@@ -705,8 +705,8 @@ export default function PublicOrdering({
                   <div style={{ marginBottom: 16, padding: "12px", background: "#f8fafc", borderRadius: 12, border: "1px solid #e2e8f0" }}>
                     <div style={{ fontWeight: 600, marginBottom: 12, fontSize: 14 }}>Vị trí bàn của bạn: <span style={{ color: "red" }}>*</span></div>
                     
-                    {Array.from(new Set(tables.map(t => t.zone))).map(zone => (
-                      <div key={zone} style={{ marginBottom: 12, borderBottom: "1px dashed #e2e8f0", paddingBottom: 12, ":lastChild": { borderBottom: "none", paddingBottom: 0, marginBottom: 0 } }}>
+                    {Array.from(new Set(tables.map(t => t.zone))).map((zone, index, arr) => (
+                      <div key={zone} style={{ marginBottom: index === arr.length - 1 ? 0 : 12, borderBottom: index === arr.length - 1 ? "none" : "1px dashed #e2e8f0", paddingBottom: index === arr.length - 1 ? 0 : 12 }}>
                         <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8, fontWeight: 500 }}>{zone}</div>
                         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                           {tables.filter(t => t.zone === zone).map(table => (
