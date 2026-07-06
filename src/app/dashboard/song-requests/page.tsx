@@ -323,7 +323,7 @@ export default function SongRequestsPage() {
                               disabled={processingId === req.id}
                               title="Đồng ý"
                             >
-                              ✓<span className="hide-on-mobile"> Đồng ý</span>
+                              ✓ Đồng ý
                             </button>
                             <button 
                               className="btn" 
@@ -332,7 +332,7 @@ export default function SongRequestsPage() {
                               disabled={processingId === req.id}
                               title="Từ chối"
                             >
-                              ✕<span className="hide-on-mobile"> Từ chối</span>
+                              ✕ Từ chối
                             </button>
                           </div>
                         )
