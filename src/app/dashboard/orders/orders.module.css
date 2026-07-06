@@ -94,5 +94,4 @@
 
 @media (max-width: 768px) {
   .summaryRow { grid-template-columns: repeat(2, 1fr); }
-  .detailGrid { grid-template-columns: 1fr; }
 }
