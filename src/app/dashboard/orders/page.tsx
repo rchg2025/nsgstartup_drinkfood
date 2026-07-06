@@ -377,7 +377,7 @@ export default function OrdersPage() {
                   <th>Thu ngân</th>
                   <th>Trạng thái</th>
                   <th>Thời gian</th>
-                  <th>Thao tác</th>
+                  <th style={{ position: "sticky", right: 0, backgroundColor: "#f8fafc", zIndex: 1, boxShadow: "-2px 0 5px rgba(0,0,0,0.05)" }}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -415,7 +415,7 @@ export default function OrdersPage() {
                     <td style={{ color: "var(--text-secondary)", fontSize: 13 }}>
                       {formatDate(order.createdAt)}
                     </td>
-                    <td onClick={(e) => e.stopPropagation()}>
+                    <td onClick={(e) => e.stopPropagation()} style={{ position: "sticky", right: 0, backgroundColor: "#fff", zIndex: 1, boxShadow: "-2px 0 5px rgba(0,0,0,0.05)" }}>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, minWidth: "120px", maxWidth: "180px" }}>
                         {order.status === "PENDING" && (
                           <button className="btn btn-secondary btn-sm" onClick={() => updateStatus(order.id, "PREPARING")} disabled={updating} style={{ flex: "1 1 calc(50% - 6px)" }}>
@@ -447,8 +447,8 @@ export default function OrdersPage() {
                           </button>
                         )}
                         {isAdmin && (
-                          <button className="btn btn-danger btn-sm" onClick={() => deleteOrder(order.id)} disabled={updating} title="Xóa đơn hàng" style={{ flex: "0 0 32px", padding: 0 }}>
-                            🗑️
+                          <button className="btn btn-danger btn-sm" onClick={() => deleteOrder(order.id)} disabled={updating} title="Xóa đơn hàng" style={{ flex: "1 1 100%" }}>
+                            🗑️ Xóa ĐH
                           </button>
                         )}
                       </div>
