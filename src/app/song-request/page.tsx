@@ -20,7 +20,7 @@ export default function SongRequestPage() {
   const [srMessage, setSrMessage] = useState("");
   const [srSongName, setSrSongName] = useState("");
   const [srRequester, setSrRequester] = useState("");
-  const [srHasTip, setSrHasTip] = useState(false);
+  const [srHasTip, setSrHasTip] = useState(true);
   const [srTipAmount, setSrTipAmount] = useState<number | "other">(10000);
   const [srOtherTipAmount, setSrOtherTipAmount] = useState<number | "">("");
   const [submittingSr, setSubmittingSr] = useState(false);
@@ -125,7 +125,7 @@ export default function SongRequestPage() {
         setSrMessage("");
         setSrSongName("");
         setSrRequester("");
-        setSrHasTip(false);
+        setSrHasTip(true);
         setSrTipAmount(10000);
         setSrOtherTipAmount("");
         setTimeout(() => {
