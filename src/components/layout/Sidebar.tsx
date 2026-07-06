@@ -267,7 +267,7 @@ export default function Sidebar() {
         </div>
 
         {/* User info */}
-        <div className={styles.user}>
+        <div className={styles.user} style={{ flexWrap: "wrap" }}>
           <Link href="/dashboard/profile" className={styles.userInfoLink} style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, textDecoration: 'none', overflow: 'hidden' }}>
             { (session?.user as any)?.avatar ? (
               <img 
@@ -286,13 +286,14 @@ export default function Sidebar() {
               <span className={styles.userRole}>{getRoleLabel(role)}</span>
             </div>
           </Link>
-          <div className={styles.logoutWrapper}>
+          <div className={styles.logoutWrapper} style={{ flex: isCollapsed ? "none" : "1 1 100%", borderTop: isCollapsed ? "none" : "1px dashed var(--border)", paddingTop: isCollapsed ? 0 : 8, display: "flex", justifyContent: "center" }}>
             <button
               className={styles.logoutBtn}
               onClick={async () => {
                 await signOut({ redirect: false });
                 window.location.href = "/login";
               }}
+              style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
             >
               <span className={styles.logoutIcon}>↪</span>
               {!isCollapsed && <span>Đăng xuất</span>}
