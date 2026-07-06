@@ -14,10 +14,26 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const includeHidden = searchParams.get("includeHidden") === "true";
+  const dateParam = searchParams.get("date"); // YYYY-MM-DD
+
+  let dateFilter: any = undefined;
+  if (dateParam) {
+    const startOfDay = new Date(dateParam);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(dateParam);
+    endOfDay.setHours(23, 59, 59, 999);
+    dateFilter = {
+      gte: startOfDay,
+      lte: endOfDay,
+    };
+  }
 
   try {
     const requests = await prisma.songRequest.findMany({
-      where: includeHidden ? undefined : { isHidden: false },
+      where: {
+        ...(includeHidden ? {} : { isHidden: false }),
+        ...(dateFilter ? { createdAt: dateFilter } : {}),
+      },
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(requests);
