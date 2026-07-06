@@ -178,6 +178,7 @@ export default function PublicOrdering({
 
         if (tablesRes.ok) {
           const tablesData = await tablesRes.json();
+          tablesData.sort((a: any, b: any) => a.name.localeCompare(b.name, 'vi', { numeric: true }));
           setTables(tablesData);
         }
       } catch (error) {
@@ -705,28 +706,30 @@ export default function PublicOrdering({
                   <div style={{ marginBottom: 16, padding: "12px", background: "#f8fafc", borderRadius: 12, border: "1px solid #e2e8f0" }}>
                     <div style={{ fontWeight: 600, marginBottom: 12, fontSize: 14 }}>Vị trí bàn của bạn: <span style={{ color: "red" }}>*</span></div>
                     
-                    {Array.from(new Set(tables.map(t => t.zone))).map((zone, index, arr) => (
+                    {Array.from(new Set(tables.map(t => t.zone))).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })).map((zone, index, arr) => (
                       <div key={zone} style={{ marginBottom: index === arr.length - 1 ? 0 : 12, borderBottom: index === arr.length - 1 ? "none" : "1px dashed #e2e8f0", paddingBottom: index === arr.length - 1 ? 0 : 12 }}>
                         <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8, fontWeight: 500 }}>{zone}</div>
                         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                          {tables.filter(t => t.zone === zone).map(table => (
+                          {tables.filter(t => t.zone === zone).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })).map(table => (
                             <div 
                               key={table.id}
                               onClick={() => setSelectedTable(table)}
-                              style={{
-                                padding: "8px 12px",
-                                border: selectedTable?.id === table.id ? "2px solid var(--primary)" : "1px solid #e2e8f0",
-                                borderRadius: 8,
-                                background: selectedTable?.id === table.id ? "rgba(var(--primary-rgb), 0.1)" : "#fff",
+                              style={{ 
+                                padding: "12px", 
+                                border: selectedTable?.id === table.id ? "2px solid #ef4444" : "1px solid #e2e8f0", 
+                                borderRadius: 8, 
+                                background: selectedTable?.id === table.id ? "rgba(239, 68, 68, 0.1)" : "#fff",
                                 cursor: "pointer",
+                                flex: "1 1 80px",
+                                maxWidth: "100px",
                                 textAlign: "center",
-                                minWidth: 60,
-                                flex: "1 1 auto",
-                                maxWidth: "calc(33.33% - 8px)"
+                                transition: "all 0.2s",
+                                transform: selectedTable?.id === table.id ? "scale(1.02)" : "scale(1)",
+                                boxShadow: selectedTable?.id === table.id ? "0 4px 12px rgba(239, 68, 68, 0.2)" : "none",
                               }}
                             >
-                              <div style={{ fontSize: 20, marginBottom: 4 }}>🪑</div>
-                              <div style={{ fontSize: 12, fontWeight: 600, color: selectedTable?.id === table.id ? "var(--primary)" : "var(--text)" }}>{table.name}</div>
+                              <div style={{ fontSize: 24, marginBottom: 4 }}>🪑</div>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: selectedTable?.id === table.id ? "#ef4444" : "var(--text)" }}>{table.name}</div>
                             </div>
                           ))}
                         </div>

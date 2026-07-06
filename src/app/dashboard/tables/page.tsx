@@ -22,6 +22,7 @@ export default function TablesPage() {
       const res = await fetch("/api/tables");
       if (res.ok) {
         const data = await res.json();
+        data.sort((a: any, b: any) => a.name.localeCompare(b.name, 'vi', { numeric: true }));
         setTables(data);
       }
     } catch (error) {
