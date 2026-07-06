@@ -300,10 +300,11 @@ export default function MenuPage() {
       {activeTab === "categories" && (
         <div className="card" style={{ padding: 0 }}>
           <table className="table">
-            <thead><tr><th>Icon</th><th>Tên danh mục</th><th>Thứ tự</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+            <thead><tr><th>STT</th><th>Icon</th><th>Tên danh mục</th><th>Thứ tự hiển thị</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
             <tbody>
-              {filteredCategories.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((cat) => (
+              {filteredCategories.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((cat, index) => (
                 <tr key={cat.id}>
+                  <td>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</td>
                   <td style={{ fontSize: 24 }}>{cat.icon}</td>
                   <td><strong>{cat.name}</strong></td>
                   <td>{cat.sortOrder}</td>
@@ -346,10 +347,11 @@ export default function MenuPage() {
       {activeTab === "toppings" && (
         <div className="card" style={{ padding: 0 }}>
           <table className="table">
-            <thead><tr><th>Tên topping</th><th>Giá</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+            <thead><tr><th>STT</th><th>Tên topping</th><th>Giá</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
             <tbody>
-              {filteredToppings.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((top) => (
+              {filteredToppings.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((top, index) => (
                 <tr key={top.id}>
+                  <td>{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</td>
                   <td><strong>{top.name}</strong></td>
                   <td style={{ color: "var(--accent)", fontWeight: 600 }}>{formatCurrency(top.price)}</td>
                   <td><span className={`badge ${top.available ? "badge-completed" : "badge-cancelled"}`}>{top.available ? "Có sẵn" : "Hết"}</span></td>
