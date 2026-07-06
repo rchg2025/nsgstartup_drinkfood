@@ -278,14 +278,14 @@ export default function OrdersPage() {
           <h1 className="page-title">📋 Quản lý đơn hàng</h1>
           <p className="page-subtitle">Theo dõi và cập nhật trạng thái đơn hàng</p>
         </div>
-        <div style={{ display: "flex", gap: "8px" }}>
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
           {isAdmin && orders.some(o => o.status !== "COMPLETED" && o.status !== "CANCELLED") && (
-            <button className="btn btn-primary" onClick={handleCompleteAll} disabled={updating} style={{ background: "var(--green)", color: "white" }}>
+            <button className="btn btn-primary btn-sm" onClick={handleCompleteAll} disabled={updating} style={{ background: "var(--green)", color: "white" }}>
               ✅ Hoàn thành tất cả
             </button>
           )}
-          <button className="btn btn-secondary" onClick={fetchOrders}>🔄 Làm mới</button>
-          <button className="btn btn-primary" onClick={exportExcel} disabled={orders.length === 0}>
+          <button className="btn btn-secondary btn-sm" onClick={fetchOrders}>🔄 Làm mới</button>
+          <button className="btn btn-primary btn-sm" onClick={exportExcel} disabled={orders.length === 0}>
             📥 Xuất Excel
           </button>
         </div>
