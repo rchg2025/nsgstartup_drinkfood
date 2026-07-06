@@ -12,6 +12,7 @@ const navItems = [
   { href: "/dashboard/orders", icon: "📋", label: "Đơn hàng", roles: ["ADMIN", "CASHIER"] },
   { href: "/dashboard/kitchen", icon: "🍹", label: "Pha chế", roles: ["ADMIN", "BARISTA", "CASHIER"] },
   { href: "/dashboard/menu", icon: "🍔", label: "Quản lý Menu", roles: ["ADMIN"] },
+  { href: "/dashboard/tables", icon: "🪑", label: "Quản lý bàn", roles: ["ADMIN"] },
   { href: "/dashboard/inventory", icon: "📦", label: "Quản lý kho", roles: ["ADMIN"] },
   { href: "/dashboard/recipes", icon: "📖", label: "Công thức pha chế", roles: ["ADMIN"] },
   { href: "/dashboard/staff", icon: "👥", label: "Nhân viên", roles: ["ADMIN"] },

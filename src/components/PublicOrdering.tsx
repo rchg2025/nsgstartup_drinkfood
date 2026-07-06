@@ -58,6 +58,8 @@ export default function PublicOrdering({
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerType, setCustomerType] = useState<"HSSV" | "RETAIL" | null>(fixedCustomerType || null); // HSSV or RETAIL
+  const [tables, setTables] = useState<any[]>([]);
+  const [selectedTable, setSelectedTable] = useState<any>(null);
   const [showWelcomeModal, setShowWelcomeModal] = useState(!hideCustomerSelection);
   const [showCustomerTypeModal, setShowCustomerTypeModal] = useState(false);
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
@@ -161,14 +163,23 @@ export default function PublicOrdering({
 
     const fetchData = async () => {
       try {
-        const res = await fetch("/api/public/menu-data", { next: { revalidate: 60 } });
-        const data = await res.json();
+        const [menuRes, tablesRes] = await Promise.all([
+          fetch("/api/public/menu-data", { next: { revalidate: 60 } }),
+          fetch("/api/public/tables")
+        ]);
+
+        const data = await menuRes.json();
         
         setCategories(data.categories || []);
         setProducts(data.products || []);
         setToppings(data.toppings || []);
         setBankSettings(data.settings || {});
         if (Array.isArray(data.campaigns)) setCampaigns(data.campaigns);
+
+        if (tablesRes.ok) {
+          const tablesData = await tablesRes.json();
+          setTables(tablesData);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -327,6 +338,10 @@ export default function PublicOrdering({
 
   const handleSubmitOrder = async () => {
     if (cart.length === 0) return;
+    if (customerType === "RETAIL" && !selectedTable) {
+      alert("Vui lòng chọn bàn trước khi đặt món.");
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await fetch("/api/orders", {
@@ -342,6 +357,8 @@ export default function PublicOrdering({
           paymentMethod,
           paymentStatus: "PENDING", // Khách đặt luôn là PENDING
           note: orderNote || null,
+          tableId: selectedTable?.id || null,
+          tableName: selectedTable?.name || null,
           usedDiscountCodeId: appliedDiscount?.rewardId || null,
           items: cart.map((item) => ({
             productId: item.product.id,
@@ -608,6 +625,9 @@ export default function PublicOrdering({
 
         {/* Customer Info */}
         <div className={styles.customerInfo}>
+          <div style={{ fontSize: 12, color: "var(--primary)", fontWeight: 500, marginBottom: 12, lineHeight: 1.4, padding: "8px", background: "rgba(var(--primary-rgb), 0.05)", borderRadius: "8px", border: "1px solid rgba(var(--primary-rgb), 0.1)" }}>
+            ✨ Nhập thông tin cá nhân (số điện thoại) để được tích điểm và hưởng các chính sách ưu đãi của chúng tôi.
+          </div>
           <input
             className={styles.customerInput}
             placeholder="👤 Tên của bạn (Tùy chọn)"
@@ -680,6 +700,40 @@ export default function PublicOrdering({
                      </button>
                    )}
                 </div>
+
+                {customerType === "RETAIL" && tables.length > 0 && (
+                  <div style={{ marginBottom: 16, padding: "12px", background: "#f8fafc", borderRadius: 12, border: "1px solid #e2e8f0" }}>
+                    <div style={{ fontWeight: 600, marginBottom: 12, fontSize: 14 }}>Vị trí bàn của bạn: <span style={{ color: "red" }}>*</span></div>
+                    
+                    {Array.from(new Set(tables.map(t => t.zone))).map(zone => (
+                      <div key={zone} style={{ marginBottom: 12, borderBottom: "1px dashed #e2e8f0", paddingBottom: 12, ":lastChild": { borderBottom: "none", paddingBottom: 0, marginBottom: 0 } }}>
+                        <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8, fontWeight: 500 }}>{zone}</div>
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                          {tables.filter(t => t.zone === zone).map(table => (
+                            <div 
+                              key={table.id}
+                              onClick={() => setSelectedTable(table)}
+                              style={{
+                                padding: "8px 12px",
+                                border: selectedTable?.id === table.id ? "2px solid var(--primary)" : "1px solid #e2e8f0",
+                                borderRadius: 8,
+                                background: selectedTable?.id === table.id ? "rgba(var(--primary-rgb), 0.1)" : "#fff",
+                                cursor: "pointer",
+                                textAlign: "center",
+                                minWidth: 60,
+                                flex: "1 1 auto",
+                                maxWidth: "calc(33.33% - 8px)"
+                              }}
+                            >
+                              <div style={{ fontSize: 20, marginBottom: 4 }}>🪑</div>
+                              <div style={{ fontSize: 12, fontWeight: 600, color: selectedTable?.id === table.id ? "var(--primary)" : "var(--text)" }}>{table.name}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 <div className={`${styles.cartRow}`} style={{ paddingBottom: 8 }}>
                   <span>Tạm tính:</span>

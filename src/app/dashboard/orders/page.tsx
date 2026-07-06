@@ -369,6 +369,7 @@ export default function OrdersPage() {
                 <tr>
                   <th>Đơn #</th>
                   <th>Khách hàng</th>
+                  <th>Bàn</th>
                   <th>Món</th>
                   <th>Tổng tiền</th>
                   <th>PT Thanh toán</th>
@@ -393,6 +394,7 @@ export default function OrdersPage() {
                       </div>
                       {order.customerPhone && <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{order.customerPhone}</div>}
                     </td>
+                    <td>{order.tableName || "-"}</td>
                     <td>{order.items?.length || 0} món</td>
                     <td style={{ fontWeight: 700 }}>{formatCurrency(order.finalAmount)}</td>
                     <td>{getPaymentMethodLabel(order.paymentMethod)}</td>
@@ -515,6 +517,12 @@ export default function OrdersPage() {
                     : selectedOrder.customerPhone
                     ? "Khách"
                     : "Khách lẻ"}
+                </div>
+              </div>
+              <div>
+                <div className={styles.detailLabel}>Bàn</div>
+                <div className={styles.detailValue}>
+                  {selectedOrder.tableName || "-"}
                 </div>
               </div>
               {selectedOrder.customerPhone && (

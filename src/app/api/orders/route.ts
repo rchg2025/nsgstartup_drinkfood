@@ -166,6 +166,8 @@ export async function POST(req: NextRequest) {
         customerId: customerId,
         customerType: body.customerType || "HSSV",
         isPointAwarded: isPointAwarded,
+        tableId: body.tableId || null,
+        tableName: body.tableName || null,
         usedDiscountCodeId: body.usedDiscountCodeId || null,
         note: body.note,
         items: {
