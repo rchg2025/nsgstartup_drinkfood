@@ -754,14 +754,14 @@ export default function PublicOrdering({
                 </div>
 
                 <div className={styles.paymentMethods}>
-                  {["CASH", "TRANSFER", "CARD"].map((method) => (
+                  {["CASH", "TRANSFER"].map((method) => (
                     <button
                       key={method}
                       className={`${styles.payMethod} ${paymentMethod === method ? styles.payActive : ""}`}
                       onClick={() => setPaymentMethod(method)}
                     >
-                      <span>{method === "CASH" ? "💵" : method === "TRANSFER" ? "🏦" : "💳"}</span>
-                      {method === "CASH" ? "Tiền mặt" : method === "TRANSFER" ? "Chuyển khoản" : "Quẹt thẻ"}
+                      <span>{method === "CASH" ? "💵" : "🏦"}</span>
+                      {method === "CASH" ? "Tiền mặt" : "Chuyển khoản"}
                     </button>
                   ))}
                 </div>
