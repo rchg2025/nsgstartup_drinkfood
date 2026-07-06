@@ -110,6 +110,29 @@ export default function OrdersPage() {
     setUpdating(false);
   };
 
+  const handleCompleteAll = async () => {
+    const uncompletedOrders = orders.filter(o => o.status !== "COMPLETED" && o.status !== "CANCELLED");
+    if (uncompletedOrders.length === 0) return;
+    if (!confirm(`Bạn có chắc muốn chuyển TRẠNG THÁI ${uncompletedOrders.length} đơn hàng thành Hoàn thành không?`)) return;
+    
+    setUpdating(true);
+    try {
+      await Promise.all(
+        uncompletedOrders.map(order => 
+          fetch(`/api/orders/${order.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "COMPLETED" }),
+          })
+        )
+      );
+      await fetchOrders();
+    } catch {
+      alert("Có lỗi xảy ra khi hoàn thành đồng loạt.");
+    }
+    setUpdating(false);
+  };
+
   const deleteOrder = async (orderId: string) => {
     if (!confirm("Bạn có chắc muốn xóa đơn hàng này không? Dữ liệu sẽ không thể khôi phục.")) return;
     setUpdating(true);
@@ -256,6 +279,11 @@ export default function OrdersPage() {
           <p className="page-subtitle">Theo dõi và cập nhật trạng thái đơn hàng</p>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
+          {isAdmin && orders.some(o => o.status !== "COMPLETED" && o.status !== "CANCELLED") && (
+            <button className="btn btn-primary" onClick={handleCompleteAll} disabled={updating} style={{ background: "var(--green)", color: "white" }}>
+              ✅ Hoàn thành tất cả
+            </button>
+          )}
           <button className="btn btn-secondary" onClick={fetchOrders}>🔄 Làm mới</button>
           <button className="btn btn-primary" onClick={exportExcel} disabled={orders.length === 0}>
             📥 Xuất Excel
