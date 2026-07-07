@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -48,6 +49,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       }
     });
 
+    revalidatePath('/api/public/menu-data');
+
     return NextResponse.json(product);
   } catch (error) {
     return NextResponse.json({ error: "Failed to update product" }, { status: 500 });
@@ -72,6 +75,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       });
     }
     await prisma.product.delete({ where: { id } });
+    revalidatePath('/api/public/menu-data');
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: "Failed to delete product" }, { status: 500 });

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { formatCurrency } from "@/lib/utils";
 import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -190,11 +190,13 @@ export default function PublicOrdering({
     fetchData();
   }, []);
 
-  const filteredProducts = products.filter((p) => {
-    const matchCat = selectedCategory === "all" || p.category.id === selectedCategory;
-    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
-    return matchCat && matchSearch;
-  });
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      const matchCat = selectedCategory === "all" || p.category.id === selectedCategory;
+      const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
+      return matchCat && matchSearch;
+    });
+  }, [products, selectedCategory, search]);
 
   const openProductModal = (product: Product) => {
     if (cart.length === 0 && !customerType) {
@@ -544,7 +546,7 @@ export default function PublicOrdering({
             >
               <div className={styles.productImg}>
                 {product.image ? (
-                  <img src={product.image} alt={product.name} />
+                  <img src={product.image} alt={product.name} loading="lazy" decoding="async" />
                 ) : (
                   <span className={styles.productEmoji}>🧋</span>
                 )}
@@ -582,7 +584,7 @@ export default function PublicOrdering({
                 <div key={camp.id} className={styles.productCard} style={{ flexShrink: 0, width: "calc(100vw - 64px)", maxWidth: "320px", scrollSnapAlign: "start" }} onClick={() => setSelectedCampaign(camp)}>
                   <div className={styles.productImg} style={{ background: "linear-gradient(135deg, rgba(82, 34, 208, 0.1), rgba(255, 107, 53, 0.1))", fontSize: 32 }}>
                     {camp.bannerImage ? (
-                      <img src={camp.bannerImage} alt={camp.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <img src={camp.bannerImage} alt={camp.name} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     ) : (
                       camp.rewardType === "GIFT" ? "🎁" : "🎟️"
                     )}

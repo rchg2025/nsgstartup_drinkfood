@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -14,6 +15,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       where: { id },
       data: { name: body.name, price: body.price, available: body.available },
     });
+    revalidatePath('/api/public/menu-data');
     return NextResponse.json(topping);
   } catch (error) {
     return NextResponse.json({ error: "Failed to update topping" }, { status: 500 });
@@ -28,6 +30,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   try {
     const { id } = await params;
     await prisma.topping.delete({ where: { id } });
+    revalidatePath('/api/public/menu-data');
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: "Failed to delete topping" }, { status: 500 });

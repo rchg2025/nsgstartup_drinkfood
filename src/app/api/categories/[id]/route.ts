@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -28,6 +29,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       }
     });
 
+    revalidatePath('/api/public/menu-data');
+
     return NextResponse.json(category);
   } catch (error) {
     return NextResponse.json({ error: "Failed to update category" }, { status: 500 });
@@ -53,6 +56,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     }
 
     await prisma.category.delete({ where: { id } });
+    revalidatePath('/api/public/menu-data');
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: "Failed to delete category" }, { status: 500 });

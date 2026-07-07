@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -49,6 +50,8 @@ export async function POST(req: NextRequest) {
         maxQuantity: maxQuantity ? parseInt(maxQuantity) : null
       }
     });
+
+    revalidatePath('/api/public/menu-data');
 
     return NextResponse.json(campaign, { status: 201 });
   } catch (error) {

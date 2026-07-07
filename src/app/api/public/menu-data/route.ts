@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export const revalidate = 5; // Edge Cache for 5 seconds
+export const revalidate = 86400; // Edge Cache for 24 hours (cleared via revalidatePath)
 
 export async function GET(req: NextRequest) {
   try {
@@ -25,10 +25,8 @@ export async function GET(req: NextRequest) {
           id: true,
           name: true,
           description: true,
-          recipe: true,
           price: true,
           retailPrice: true,
-          costPrice: true,
           image: true,
           available: true,
           stockQuantity: true,
@@ -75,7 +73,7 @@ export async function GET(req: NextRequest) {
     };
 
     const res = NextResponse.json(data);
-    res.headers.set('Cache-Control', 's-maxage=5, stale-while-revalidate');
+    res.headers.set('Cache-Control', 's-maxage=86400, stale-while-revalidate');
     return res;
   } catch (error) {
     console.error("Failed to fetch menu data:", error);

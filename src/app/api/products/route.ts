@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 export const revalidate = 60; // Tự động cache kết quả GET trong 60 giây
 
@@ -75,6 +76,8 @@ export async function POST(req: NextRequest) {
         details: `Đã tạo sản phẩm: ${product.name}`,
       }
     });
+
+    revalidatePath('/api/public/menu-data');
 
     return NextResponse.json(product, { status: 201 });
   } catch (error) {

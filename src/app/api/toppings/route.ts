@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 export const revalidate = 60;
 
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
     const topping = await prisma.topping.create({
       data: { name: body.name, price: body.price || 0 },
     });
+    revalidatePath('/api/public/menu-data');
     return NextResponse.json(topping, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: "Failed to create topping" }, { status: 500 });
