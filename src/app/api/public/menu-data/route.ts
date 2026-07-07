@@ -37,9 +37,9 @@ export async function GET(req: NextRequest) {
       }),
       // Toppings
       prisma.topping.findMany({
-        where: { available: true },
+        where: { available: true, stockQuantity: { gt: 0 } },
         orderBy: { createdAt: "desc" },
-        select: { id: true, name: true, price: true },
+        select: { id: true, name: true, price: true, stockQuantity: true },
       }),
       // Settings
       prisma.setting.findMany(),

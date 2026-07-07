@@ -10,18 +10,33 @@ export async function GET(req: NextRequest) {
   }
   
   try {
-    const products = await prisma.product.findMany({
-      select: {
-        id: true,
-        name: true,
-        stockQuantity: true,
-        image: true,
-        category: { select: { name: true } },
-      },
-      orderBy: { createdAt: "desc" }
-    });
+    const [products, toppings] = await Promise.all([
+      prisma.product.findMany({
+        select: {
+          id: true,
+          name: true,
+          stockQuantity: true,
+          image: true,
+          category: { select: { name: true } },
+        },
+        orderBy: { createdAt: "desc" }
+      }),
+      prisma.topping.findMany({
+        select: {
+          id: true,
+          name: true,
+          stockQuantity: true,
+        },
+        orderBy: { createdAt: "desc" }
+      })
+    ]);
     
-    return NextResponse.json(products);
+    const inventory = [
+      ...products.map(p => ({ ...p, type: "PRODUCT" })),
+      ...toppings.map(t => ({ ...t, type: "TOPPING", category: { name: "Topping" }, image: "" }))
+    ];
+
+    return NextResponse.json(inventory);
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch inventory" }, { status: 500 });
   }
@@ -36,10 +51,10 @@ export async function POST(req: NextRequest) {
   
   try {
     const body = await req.json();
-    const { productId, quantityAdded, note } = body;
+    const { productId, toppingId, quantityAdded, note } = body;
     const userId = (session.user as any).id;
     
-    if (!productId || !quantityAdded || isNaN(quantityAdded) || quantityAdded <= 0) {
+    if ((!productId && !toppingId) || !quantityAdded || isNaN(quantityAdded) || quantityAdded <= 0) {
       return NextResponse.json({ error: "Invalid data" }, { status: 400 });
     }
 
@@ -47,21 +62,28 @@ export async function POST(req: NextRequest) {
     const result = await prisma.$transaction(async (tx) => {
       const log = await tx.inventoryLog.create({
         data: {
-          productId,
+          productId: productId || null,
+          toppingId: toppingId || null,
           quantityAdded,
           note,
           userId
         }
       });
       
-      const product = await tx.product.update({
-        where: { id: productId },
-        data: {
-          stockQuantity: { increment: quantityAdded }
-        }
-      });
+      let updatedItem;
+      if (productId) {
+        updatedItem = await tx.product.update({
+          where: { id: productId },
+          data: { stockQuantity: { increment: quantityAdded } }
+        });
+      } else if (toppingId) {
+        updatedItem = await tx.topping.update({
+          where: { id: toppingId },
+          data: { stockQuantity: { increment: quantityAdded } }
+        });
+      }
       
-      return { log, product };
+      return { log, updatedItem };
     });
     
     return NextResponse.json(result, { status: 201 });

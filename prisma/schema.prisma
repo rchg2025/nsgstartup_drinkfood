@@ -170,9 +170,11 @@ model Topping {
   name        String
   price       Int                @default(0)
   available   Boolean            @default(true)
+  stockQuantity Int              @default(0)
   createdAt   DateTime           @default(now())
 
   orderItems  OrderItemTopping[]
+  inventoryLogs InventoryLog[]
 
   @@map("toppings")
 }
@@ -401,13 +403,15 @@ model ActivityLog {
 
 model InventoryLog {
   id            String   @id @default(cuid())
-  productId     String
+  productId     String?
+  toppingId     String?
   quantityAdded Int
   note          String?
   userId        String?
   createdAt     DateTime @default(now())
 
-  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product       Product?  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  topping       Topping?  @relation(fields: [toppingId], references: [id], onDelete: Cascade)
   user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("inventory_logs")

@@ -73,7 +73,7 @@ export default function InventoryPage() {
     
     // Prepare data for Excel (export ALL filtered logs, ignoring pagination)
     const data = filteredLogs.map((log) => ({
-      "Sản phẩm": log.product?.name || "N/A",
+      "Sản phẩm / Topping": log.product?.name || log.topping?.name || "N/A",
       "Số lượng nhập": log.quantityAdded,
       "Ghi chú": log.note || "",
       "Người nhập": log.user?.name || "Hệ thống",
@@ -98,14 +98,20 @@ export default function InventoryPage() {
 
     setSubmitting(true);
     try {
+      const payload: any = {
+        quantityAdded: Number(quantityToAdd),
+        note
+      };
+      if (selectedProduct.type === "TOPPING") {
+        payload.toppingId = selectedProduct.id;
+      } else {
+        payload.productId = selectedProduct.id;
+      }
+
       const res = await fetch("/api/admin/inventory", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productId: selectedProduct.id,
-          quantityAdded: Number(quantityToAdd),
-          note
-        })
+        body: JSON.stringify(payload)
       });
 
       if (res.ok) {
@@ -126,7 +132,8 @@ export default function InventoryPage() {
   // Filter logs
   const filteredLogs = logs.filter(log => {
     const term = historySearchText.toLowerCase();
-    const matchProduct = log.product?.name?.toLowerCase().includes(term);
+    const itemName = (log.product?.name || log.topping?.name || "").toLowerCase();
+    const matchProduct = itemName.includes(term);
     const matchNote = log.note?.toLowerCase().includes(term);
     const matchUser = log.user?.name?.toLowerCase().includes(term);
     return matchProduct || matchNote || matchUser;
@@ -368,7 +375,7 @@ export default function InventoryPage() {
                     {paginatedHistoryLogs.map(log => (
                       <div key={log.id} className={styles.historyItem}>
                         <div>
-                          <div style={{ fontWeight: 600 }}>{log.product?.name}</div>
+                          <div style={{ fontWeight: 600 }}>{log.product?.name || log.topping?.name}</div>
                           <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4 }}>
                             Người nhập: {log.user?.name || "Hệ thống"} {log.note && `- Ghi chú: ${log.note}`}
                           </div>

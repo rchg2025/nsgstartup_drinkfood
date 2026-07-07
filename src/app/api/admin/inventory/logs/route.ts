@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
     const logs = await prisma.inventoryLog.findMany({
       include: {
         product: { select: { name: true } },
+        topping: { select: { name: true } },
         user: { select: { name: true } },
       },
       orderBy: { createdAt: "desc" },
