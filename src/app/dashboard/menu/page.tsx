@@ -329,9 +329,10 @@ export default function MenuPage() {
                   <td><strong>{cat.name}</strong></td>
                   <td>{cat.sortOrder}</td>
                   <td>
-                    <span className={`badge ${cat.active ? "badge-completed" : "badge-cancelled"}`}>
-                      {cat.active ? "Hiển thị" : "Ẩn"}
-                    </span>
+                    <label className="switch" title={cat.active ? "Hiển thị" : "Ẩn"}>
+                      <input type="checkbox" checked={cat.active} onChange={() => toggleCategoryActive(cat)} />
+                      <span className="switch-slider" />
+                    </label>
                   </td>
                   <td>
                     <div style={{ display: "flex", gap: 6 }}>
@@ -379,9 +380,10 @@ export default function MenuPage() {
                   <td><strong>{top.name}</strong></td>
                   <td style={{ color: "var(--accent)", fontWeight: 600 }}>{formatCurrency(top.price)}</td>
                   <td>
-                    <span className={`badge ${top.available ? "badge-completed" : "badge-cancelled"}`}>
-                      {top.available ? "Có sẵn" : "Hết"}
-                    </span>
+                    <label className="switch" title={top.available ? "Có sẵn" : "Hết"}>
+                      <input type="checkbox" checked={top.available} onChange={() => toggleToppingAvailable(top)} />
+                      <span className="switch-slider" />
+                    </label>
                   </td>
                   <td>
                     <div style={{ display: "flex", gap: 6 }}>
