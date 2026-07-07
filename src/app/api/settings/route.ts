@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const session = await auth();
   const role = (session?.user as any)?.role;
-  if (role !== "ADMIN") {
+  if (role !== "ADMIN" && role !== "BAND") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
@@ -32,6 +32,9 @@ export async function POST(req: NextRequest) {
 
     // The body should be a key-value object of strings
     for (const [key, value] of Object.entries(body)) {
+      if (role !== "ADMIN" && key !== "song_request_enabled") {
+        return NextResponse.json({ error: "Unauthorized to update this setting" }, { status: 403 });
+      }
       if (typeof value === "string") {
         updates.push(
           prisma.setting.upsert({

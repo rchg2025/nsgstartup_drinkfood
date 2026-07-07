@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 
 export default function SongRequestsPage() {
   const [requests, setRequests] = useState<any[]>([]);
+  const [isRequestEnabled, setIsRequestEnabled] = useState(true);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,6 +23,12 @@ export default function SongRequestsPage() {
       const res = await fetch(url);
       const data = await res.json();
       setRequests(data);
+      
+      const settingsRes = await fetch("/api/settings");
+      if (settingsRes.ok) {
+        const settingsData = await settingsRes.json();
+        setIsRequestEnabled(settingsData.song_request_enabled !== "false");
+      }
     } catch (e) {
       console.error(e);
     }
@@ -47,6 +54,20 @@ export default function SongRequestsPage() {
       alert("Lỗi khi cập nhật trạng thái");
     }
     setProcessingId(null);
+  };
+
+  const toggleRequestEnabled = async () => {
+    const newValue = !isRequestEnabled;
+    setIsRequestEnabled(newValue);
+    try {
+      await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ song_request_enabled: newValue ? "true" : "false" })
+      });
+    } catch (e) {
+      alert("Lỗi khi cập nhật trạng thái");
+    }
   };
 
   const confirmReject = (id: string) => {
@@ -180,7 +201,14 @@ export default function SongRequestsPage() {
       `}</style>
       <div className="page-header" style={{ flexWrap: "wrap", gap: "12px" }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--primary)", margin: 0 }}>🎵 Yêu cầu bài hát</h1>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <button 
+            className="btn" 
+            style={{ background: isRequestEnabled ? "#10b981" : "#ef4444", color: "#fff", padding: "8px 16px", borderRadius: 8, fontWeight: 600, border: "none" }} 
+            onClick={toggleRequestEnabled}
+          >
+            {isRequestEnabled ? "🎙️ Đang Mở Yêu Cầu" : "🚫 Đã Tắt Yêu Cầu"}
+          </button>
           {role === "ADMIN" && (
             <button className="btn" style={{ background: "#ef4444", color: "#fff", padding: "8px 16px", borderRadius: 8, fontWeight: 600, border: "none" }} onClick={handleDeleteAll}>
               🗑️ Xóa tất cả

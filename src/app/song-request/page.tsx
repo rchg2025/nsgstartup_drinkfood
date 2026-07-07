@@ -305,6 +305,13 @@ export default function SongRequestPage() {
                   Xem danh sách bài hát
                 </button>
               </div>
+            ) : bankSettings?.song_request_enabled === "false" ? (
+              <div style={{ textAlign: "center", padding: "40px 20px", background: "#fff", borderRadius: 16, boxShadow: "0 10px 25px rgba(0,0,0,0.05)" }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>🎵</div>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--primary)", marginBottom: 12, lineHeight: 1.5 }}>
+                  Band nhạc kính chào Quý Khách! Hiện tại sắp đếp đến giờ kết thúc chương trình 21g30 nhưng chúng tôi còn rất nhiều tiết mục mà quý khách đã yêu cầu chưa được biểu diễn, nên mong quý khách thông cảm cho band nhạc tạm ngưng nhận yêu cầu mới. Hẹn gặp lại quý khách vào lúc 19g30-21g30 thứ 2, 4 hàng tuần. Trân trọng!
+                </h3>
+              </div>
             ) : (
               <form onSubmit={handleSubmitSongRequest}>
                 <div style={{ marginBottom: 20 }}>
