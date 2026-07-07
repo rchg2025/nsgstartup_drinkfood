@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,7 +11,6 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" }, // fallback if name is not preferable, wait, let's keep name asc as before
     });
     const res = NextResponse.json(toppings);
-    res.headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
     return res;
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch toppings" }, { status: 500 });

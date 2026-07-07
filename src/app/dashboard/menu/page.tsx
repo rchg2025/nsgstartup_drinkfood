@@ -88,10 +88,12 @@ export default function MenuPage() {
         if (!res.ok) throw new Error();
       } else if (activeTab === "categories") {
         url = isEdit ? `/api/categories/${editItem.id}` : "/api/categories";
-        await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+        const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+        if (!res.ok) throw new Error();
       } else {
         url = isEdit ? `/api/toppings/${editItem.id}` : "/api/toppings";
-        await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, price: Number(form.price) }) });
+        const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, price: Number(form.price) }) });
+        if (!res.ok) throw new Error();
       }
       await fetchAll();
       setShowModal(false);

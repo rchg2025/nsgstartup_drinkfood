@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
@@ -13,7 +13,6 @@ export async function GET(req: NextRequest) {
       config[s.key] = s.value;
     });
     const res = NextResponse.json(config);
-    res.headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
     return res;
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });
