@@ -327,15 +327,9 @@ export default function MenuPage() {
                   <td><strong>{cat.name}</strong></td>
                   <td>{cat.sortOrder}</td>
                   <td>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <label className="switch" title={cat.active ? "Hiển thị" : "Ẩn"}>
-                        <input type="checkbox" checked={cat.active} onChange={() => toggleCategoryActive(cat)} />
-                        <span className="switch-slider" />
-                      </label>
-                      <span className={`badge ${cat.active ? "badge-completed" : "badge-cancelled"}`}>
-                        {cat.active ? "Hiển thị" : "Ẩn"}
-                      </span>
-                    </div>
+                    <span className={`badge ${cat.active ? "badge-completed" : "badge-cancelled"}`}>
+                      {cat.active ? "Hiển thị" : "Ẩn"}
+                    </span>
                   </td>
                   <td>
                     <div style={{ display: "flex", gap: 6 }}>
@@ -383,15 +377,9 @@ export default function MenuPage() {
                   <td><strong>{top.name}</strong></td>
                   <td style={{ color: "var(--accent)", fontWeight: 600 }}>{formatCurrency(top.price)}</td>
                   <td>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <label className="switch" title={top.available ? "Có sẵn" : "Hết"}>
-                        <input type="checkbox" checked={top.available} onChange={() => toggleToppingAvailable(top)} />
-                        <span className="switch-slider" />
-                      </label>
-                      <span className={`badge ${top.available ? "badge-completed" : "badge-cancelled"}`}>
-                        {top.available ? "Có sẵn" : "Hết"}
-                      </span>
-                    </div>
+                    <span className={`badge ${top.available ? "badge-completed" : "badge-cancelled"}`}>
+                      {top.available ? "Có sẵn" : "Hết"}
+                    </span>
                   </td>
                   <td>
                     <div style={{ display: "flex", gap: 6 }}>
@@ -565,18 +553,16 @@ export default function MenuPage() {
                   <label className="form-label">Thứ tự hiển thị</label>
                   <input className="form-input" type="number" value={form.sortOrder || 0} onChange={(e) => setForm({ ...form, sortOrder: Number(e.target.value) })} />
                 </div>
-                {editItem && (
-                  <div className="form-group">
-                    <label className="form-label">Trạng thái</label>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <label className="switch">
-                        <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />
-                        <span className="switch-slider" />
-                      </label>
-                      <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>{form.active ? "Hiển thị" : "Ẩn"}</span>
-                    </div>
+                <div className="form-group">
+                  <label className="form-label">Trạng thái</label>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <label className="switch">
+                      <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />
+                      <span className="switch-slider" />
+                    </label>
+                    <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>{form.active ? "Hiển thị" : "Ẩn"}</span>
                   </div>
-                )}
+                </div>
               </>
             )}
 
@@ -590,6 +576,16 @@ export default function MenuPage() {
                 <div className="form-group">
                   <label className="form-label">Giá (VNĐ)</label>
                   <input className="form-input" type="number" value={form.price || 0} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Trạng thái</label>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <label className="switch">
+                      <input type="checkbox" checked={form.available} onChange={(e) => setForm({ ...form, available: e.target.checked })} />
+                      <span className="switch-slider" />
+                    </label>
+                    <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>{form.available ? "Có sẵn" : "Hết"}</span>
+                  </div>
                 </div>
               </>
             )}
