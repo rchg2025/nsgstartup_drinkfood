@@ -68,12 +68,16 @@ export default function SongRequestPage() {
   const currentSrList = filteredSrList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   useEffect(() => {
-    fetch("/api/public/menu-data")
-      .then(res => res.json())
-      .then(data => {
-        setBankSettings(data.settings || {});
-        setLoading(false);
-      });
+    Promise.all([
+      fetch("/api/public/menu-data").then(res => res.json()),
+      fetch("/api/settings").then(res => res.json())
+    ]).then(([menuData, settingsData]) => {
+      setBankSettings({ ...(menuData.settings || {}), ...settingsData });
+      setLoading(false);
+    }).catch(e => {
+      console.error(e);
+      setLoading(false);
+    });
   }, []);
 
   const fetchPublicSongRequests = async () => {
@@ -306,11 +310,27 @@ export default function SongRequestPage() {
                 </button>
               </div>
             ) : bankSettings?.song_request_enabled === "false" ? (
-              <div style={{ textAlign: "center", padding: "40px 20px", background: "#fff", borderRadius: 16, boxShadow: "0 10px 25px rgba(0,0,0,0.05)" }}>
-                <div style={{ fontSize: 48, marginBottom: 16 }}>🎵</div>
-                <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--primary)", marginBottom: 12, lineHeight: 1.5 }}>
-                  Band nhạc kính chào Quý Khách! Hiện tại sắp đếp đến giờ kết thúc chương trình 21g30 nhưng chúng tôi còn rất nhiều tiết mục mà quý khách đã yêu cầu chưa được biểu diễn, nên mong quý khách thông cảm cho band nhạc tạm ngưng nhận yêu cầu mới. Hẹn gặp lại quý khách vào lúc 19g30-21g30 thứ 2, 4 hàng tuần. Trân trọng!
+              <div style={{ textAlign: "center", padding: "40px 24px", background: "linear-gradient(145deg, #ffffff, #f8fafc)", borderRadius: 20, boxShadow: "0 10px 30px rgba(0,0,0,0.08)", border: "1px solid rgba(226, 232, 240, 0.8)", position: "relative", overflow: "hidden" }}>
+                <div style={{ position: "absolute", top: -20, right: -20, fontSize: 120, opacity: 0.03, transform: "rotate(15deg)", pointerEvents: "none" }}>🎸</div>
+                <div style={{ position: "absolute", bottom: -20, left: -20, fontSize: 100, opacity: 0.03, transform: "rotate(-15deg)", pointerEvents: "none" }}>🎤</div>
+                
+                <div style={{ width: 80, height: 80, background: "rgba(239, 68, 68, 0.1)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px", fontSize: 40, boxShadow: "0 4px 15px rgba(239, 68, 68, 0.15)" }}>
+                  🎤
+                </div>
+                
+                <h3 style={{ fontSize: 22, fontWeight: 800, color: "#1e293b", marginBottom: 16, letterSpacing: "-0.5px" }}>
+                  Tạm Ngưng Nhận Yêu Cầu Bài Hát
                 </h3>
+                
+                <div style={{ fontSize: 16, color: "#475569", lineHeight: 1.7, fontWeight: 500, maxWidth: 600, margin: "0 auto" }}>
+                  <p style={{ marginBottom: 12 }}><strong>Band nhạc kính chào Quý Khách!</strong></p>
+                  <p style={{ marginBottom: 12 }}>Hiện tại sắp đến giờ kết thúc chương trình (21g30) nhưng chúng tôi còn rất nhiều tiết mục mà quý khách đã yêu cầu chưa được biểu diễn.</p>
+                  <p style={{ marginBottom: 20 }}>Nên mong quý khách thông cảm cho band nhạc <strong>tạm ngưng nhận yêu cầu mới</strong>.</p>
+                  
+                  <div style={{ padding: "14px 20px", background: "rgba(239, 68, 68, 0.05)", borderRadius: 12, border: "1px dashed rgba(239, 68, 68, 0.3)", color: "var(--primary)", fontWeight: 600, display: "inline-block" }}>
+                    ✨ Hẹn gặp lại quý khách vào lúc 19g30 - 21g30 thứ 2, 4 hàng tuần. Trân trọng! ✨
+                  </div>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSubmitSongRequest}>
