@@ -7,9 +7,7 @@ export const revalidate = 60;
 export async function GET() {
   try {
     const categories = await prisma.category.findMany({
-      where: { active: true },
       orderBy: { sortOrder: "asc" },
-      select: { id: true, name: true, icon: true },
     });
     const res = NextResponse.json(categories);
     res.headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate');

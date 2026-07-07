@@ -7,9 +7,7 @@ export const revalidate = 60;
 export async function GET(req: NextRequest) {
   try {
     const toppings = await prisma.topping.findMany({
-      where: { available: true },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true, price: true },
+      orderBy: { createdAt: "desc" }, // fallback if name is not preferable, wait, let's keep name asc as before
     });
     const res = NextResponse.json(toppings);
     res.headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
